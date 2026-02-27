@@ -16,7 +16,7 @@ const html = (isLoggedIn: boolean) => `
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>我的图库</title>
+    <title>✨ 幻彩图库</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/alpinejs/3.13.5/cdn.min.js" defer></script>
     <style>
@@ -130,7 +130,7 @@ const html = (isLoggedIn: boolean) => `
             <button x-show="isLoggedIn" @click="toggleSelectMode" x-cloak 
                     :class="isSelectMode ? 'bg-indigo-600 text-white shadow-inner' : 'bg-white/80 text-gray-700 hover:text-indigo-600 hover:bg-white'"
                     class="backdrop-blur-xl border border-white/60 px-4 rounded-xl md:rounded-2xl shadow-lg transition-all font-medium flex items-center gap-2 whitespace-nowrap">
-                <span x-text="isSelectMode ? '取消选择' : '☑️ 批量管理'"></span>
+                <span x-text="isSelectMode ? '取消选择' : '☑️ 管理'"></span>
             </button>
         </div>
 
@@ -145,9 +145,9 @@ const html = (isLoggedIn: boolean) => `
                         
                         <div x-show="isSelectMode" class="absolute inset-0 bg-black/20 z-10 transition-opacity" :class="selectedIds.includes(img.id) ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'"></div>
                         
-                        <div x-show="isSelectMode" class="absolute top-3 right-3 z-20 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all"
+                        <div x-show="isSelectMode" class="absolute top-2 right-2 md:top-3 md:right-3 z-20 w-5 h-5 md:w-6 md:h-6 rounded-full border-2 flex items-center justify-center transition-all"
                              :class="selectedIds.includes(img.id) ? 'bg-indigo-500 border-indigo-500' : 'border-white bg-black/30'">
-                            <svg x-show="selectedIds.includes(img.id)" class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                            <svg x-show="selectedIds.includes(img.id)" class="w-3 h-3 md:w-4 md:h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
                         </div>
 
                         <a :href="isSelectMode ? 'javascript:void(0)' : '/api/file/' + img.id" :target="isSelectMode ? '_self' : '_blank'" class="w-full h-full block">
@@ -174,11 +174,11 @@ const html = (isLoggedIn: boolean) => `
             <p class="text-gray-500 text-base md:text-lg font-medium">这里空空如也</p>
         </div>
 
-        <div x-show="isSelectMode" x-cloak class="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-gray-900/90 backdrop-blur-xl border border-gray-700 px-6 py-4 rounded-full shadow-2xl z-[100] flex items-center gap-6 animate-bounce-short">
-            <span class="text-gray-200 font-medium">已选择 <strong class="text-indigo-400 text-xl" x-text="selectedIds.length"></strong> 张</span>
-            <div class="h-6 w-px bg-gray-700"></div>
-            <button @click="bulkDelete" class="bg-red-500 hover:bg-red-600 text-white px-5 py-2 rounded-full font-medium transition shadow-lg disabled:opacity-50 disabled:cursor-not-allowed" :disabled="selectedIds.length === 0 || isDeletingBatch">
-                <span x-text="isDeletingBatch ? '正在删除...' : '批量删除'"></span>
+        <div x-show="isSelectMode" x-cloak class="fixed bottom-4 md:bottom-6 left-1/2 transform -translate-x-1/2 bg-gray-900/90 backdrop-blur-xl border border-gray-700 px-4 py-2.5 md:px-6 md:py-4 rounded-full shadow-2xl z-[100] flex items-center justify-between gap-3 md:gap-6 w-[85%] md:w-auto max-w-md animate-bounce-short">
+            <span class="text-gray-200 font-medium text-sm md:text-base whitespace-nowrap pl-2">已选 <strong class="text-indigo-400 text-lg md:text-xl" x-text="selectedIds.length"></strong> 张</span>
+            <div class="h-4 md:h-6 w-px bg-gray-700"></div>
+            <button @click="bulkDelete" class="bg-red-500 hover:bg-red-600 text-white px-4 py-1.5 md:px-5 md:py-2 rounded-full font-medium transition shadow-lg disabled:opacity-50 disabled:cursor-not-allowed text-sm md:text-base whitespace-nowrap" :disabled="selectedIds.length === 0 || isDeletingBatch">
+                <span x-text="isDeletingBatch ? '清理中...' : '批量删除'"></span>
             </button>
         </div>
     </div>
@@ -203,7 +203,6 @@ const html = (isLoggedIn: boolean) => `
                 galleryName: localStorage.getItem('my_gallery_name') || DEFAULT_NAME,
                 tempName: '',
                 
-                // 批量管理状态
                 isSelectMode: false,
                 selectedIds: [],
                 isDeletingBatch: false,
@@ -212,15 +211,21 @@ const html = (isLoggedIn: boolean) => `
                     this.search(); 
                     this.tempBgUrl = this.bgUrl;
                     this.tempName = this.galleryName;
+                    
+                    // 🌟 监听图库名称变动，动态修改网页 <title> 标签
+                    document.title = this.galleryName;
+                    this.$watch('galleryName', value => {
+                        document.title = value;
+                    });
+
                     if(this.isLoggedIn) {
                         this.fetchHistoryTags(); 
                     }
                 },
 
-                // 批量管理相关函数
                 toggleSelectMode() {
                     this.isSelectMode = !this.isSelectMode;
-                    this.selectedIds = []; // 每次切换重置选择
+                    this.selectedIds = [];
                 },
                 selectImage(id) {
                     const idx = this.selectedIds.indexOf(id);
@@ -233,7 +238,6 @@ const html = (isLoggedIn: boolean) => `
 
                     this.isDeletingBatch = true;
                     let deleted = 0;
-                    // 循环调用单独的删除接口
                     for (const id of this.selectedIds) {
                         try {
                             const res = await fetch('/api/file/' + id, { method: 'DELETE' });
@@ -249,7 +253,6 @@ const html = (isLoggedIn: boolean) => `
                     this.fetchHistoryTags();
                 },
 
-                // 设置相关
                 saveName() {
                     if(this.tempName.trim()) {
                         this.galleryName = this.tempName;
@@ -294,7 +297,6 @@ const html = (isLoggedIn: boolean) => `
                     this.showSettings = false;
                 },
 
-                // 业务相关
                 async login() { 
                     const res = await fetch('/api/login', { method:'POST', body:JSON.stringify({pass:this.password})}); 
                     if(res.ok) window.location.reload(); 
