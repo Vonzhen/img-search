@@ -195,49 +195,50 @@ const html = (isLoggedIn: boolean) => `
         </div>
     </div>
     
-    <div x-show="isLightboxOpen" x-cloak class="fixed inset-0 z-[200] bg-black/95 backdrop-blur-xl transition-opacity flex flex-col items-center justify-center"
+    <div x-show="isLightboxOpen" x-cloak class="fixed inset-0 z-[200] bg-black transition-opacity flex flex-col items-center justify-center"
          @keydown.escape.window="closeLightbox"
          @keydown.left.window="prevImg"
          @keydown.right.window="nextImg">
         
-        <button @click="closeLightbox" class="absolute top-4 right-4 md:top-6 md:right-6 text-white/50 hover:text-white bg-white/10 hover:bg-white/20 p-2 md:p-3 rounded-full transition-all z-50">
+        <div class="absolute inset-0 z-10" @click="showUI = !showUI"></div>
+
+        <button x-show="showUI" x-transition.opacity @click.stop="closeLightbox" class="absolute top-4 right-4 md:top-6 md:right-6 text-white bg-black/50 hover:bg-black/70 p-2 md:p-3 rounded-full backdrop-blur-md transition-all z-50">
             <svg class="w-6 h-6 md:w-8 md:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
         </button>
 
-        <button x-show="images.length > 1" @click.stop="prevImg" class="hidden md:flex absolute left-6 top-1/2 transform -translate-y-1/2 text-white/50 hover:text-white bg-white/10 hover:bg-white/20 p-4 rounded-full transition-all z-50">
+        <button x-show="showUI && images.length > 1" x-transition.opacity @click.stop="prevImg" class="hidden md:flex absolute left-6 top-1/2 transform -translate-y-1/2 text-white bg-black/20 hover:bg-black/50 p-4 rounded-full backdrop-blur-md transition-all z-50">
             <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
         </button>
 
-        <button x-show="images.length > 1" @click.stop="nextImg" class="hidden md:flex absolute right-6 top-1/2 transform -translate-y-1/2 text-white/50 hover:text-white bg-white/10 hover:bg-white/20 p-4 rounded-full transition-all z-50">
+        <button x-show="showUI && images.length > 1" x-transition.opacity @click.stop="nextImg" class="hidden md:flex absolute right-6 top-1/2 transform -translate-y-1/2 text-white bg-black/20 hover:bg-black/50 p-4 rounded-full backdrop-blur-md transition-all z-50">
             <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
         </button>
 
         <template x-if="activeImgIndex !== null && images[activeImgIndex]">
-            <div class="w-full h-full grid place-items-center overflow-auto p-2" 
-                 @click.self="closeLightbox"
-                 @touchstart="touchStartX = $event.touches[0].clientX"
-                 @touchend="handleSwipe($event.changedTouches[0].clientX)">
+            <div class="w-full h-full grid place-items-center overflow-auto z-20" 
+                 @touchstart="touchStartX = $event.touches[0].clientX; touchStartY = $event.touches[0].clientY"
+                 @touchend="handleSwipe($event.changedTouches[0].clientX, $event.changedTouches[0].clientY)">
                 
                 <template x-if="images[activeImgIndex].filename.match(/\\.(mp4|mov|webm)$/i)">
-                    <video :src="'/api/file/' + images[activeImgIndex].id" controls autoplay playsinline class="max-w-full max-h-[85vh] rounded-lg shadow-2xl outline-none"></video>
+                    <video :src="'/api/file/' + images[activeImgIndex].id" controls autoplay playsinline class="max-w-full max-h-[85vh] rounded outline-none" @click.stop></video>
                 </template>
                 
                 <template x-if="!images[activeImgIndex].filename.match(/\\.(mp4|mov|webm)$/i)">
                     <img :src="'/api/file/' + images[activeImgIndex].id"
-                         @click.stop="isZoomed = !isZoomed"
-                         :class="isZoomed ? 'cursor-zoom-out max-w-none max-h-none' : 'cursor-zoom-in max-w-full max-h-[85vh] object-contain rounded-lg'"
-                         class="transition-all duration-200 shadow-2xl m-auto" 
-                         title="点击切换放大/缩小">
+                         @dblclick.stop="isZoomed = !isZoomed"
+                         :class="isZoomed ? 'cursor-zoom-out max-w-none max-h-none' : 'cursor-zoom-in max-w-full max-h-[100vh] object-contain'"
+                         class="transition-transform duration-200 m-auto select-none" 
+                         title="双击切换放大/缩小">
                 </template>
             </div>
         </template>
 
-        <div x-show="activeImgIndex !== null && !isZoomed" class="absolute bottom-6 md:bottom-10 left-1/2 transform -translate-x-1/2 flex gap-4 bg-white/10 backdrop-blur-md px-6 py-3 rounded-full border border-white/20 shadow-xl items-center z-50 transition-opacity">
-            <span class="text-white/80 text-sm max-w-[150px] md:max-w-[300px] truncate" x-text="images[activeImgIndex] ? images[activeImgIndex].filename : ''"></span>
+        <div x-show="showUI && activeImgIndex !== null && !isZoomed" x-transition.opacity class="absolute bottom-6 md:bottom-10 left-1/2 transform -translate-x-1/2 flex gap-4 bg-black/50 backdrop-blur-md px-6 py-3 rounded-full border border-white/10 shadow-xl items-center z-50">
+            <span class="text-white text-sm max-w-[150px] md:max-w-[300px] truncate" x-text="images[activeImgIndex] ? images[activeImgIndex].filename : ''"></span>
             <div class="w-px h-4 bg-white/30"></div>
-            <a :href="images[activeImgIndex] ? '/api/file/' + images[activeImgIndex].id : '#'" download class="text-indigo-400 hover:text-indigo-300 text-sm font-medium flex items-center gap-1 transition-colors">
+            <a :href="images[activeImgIndex] ? '/api/file/' + images[activeImgIndex].id : '#'" download class="text-blue-400 hover:text-blue-300 text-sm font-medium flex items-center gap-1 transition-colors">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                下载原件
+                下载
             </a>
         </div>
     </div>
@@ -251,9 +252,8 @@ const html = (isLoggedIn: boolean) => `
         const DEFAULT_BG = 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop';
         const DEFAULT_NAME = '✨ 幻彩图库';
 
-        // 🌟 纯前端压缩生成缩略图函数
         async function generateThumbnail(file) {
-            if (!file.type.startsWith('image/')) return null; // 视频不生成缩略图
+            if (!file.type.startsWith('image/')) return null; 
             return new Promise((resolve) => {
                 const img = new Image();
                 const url = URL.createObjectURL(file);
@@ -261,7 +261,7 @@ const html = (isLoggedIn: boolean) => `
                     URL.revokeObjectURL(url);
                     const canvas = document.createElement('canvas');
                     let { width, height } = img;
-                    const max = 400; // 缩略图最大边长限制为 400px，极致省流量
+                    const max = 400; 
                     if (width > max || height > max) {
                         if (width > height) { height = Math.round(height * max / width); width = max; }
                         else { width = Math.round(width * max / height); height = max; }
@@ -269,7 +269,6 @@ const html = (isLoggedIn: boolean) => `
                     canvas.width = width; canvas.height = height;
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, width, height);
-                    // 压缩为 webp 格式，质量 0.7
                     canvas.toBlob(b => resolve(b), 'image/webp', 0.7);
                 };
                 img.onerror = () => resolve(null);
@@ -285,76 +284,90 @@ const html = (isLoggedIn: boolean) => `
                 galleryName: localStorage.getItem('my_gallery_name') || DEFAULT_NAME, tempName: '',
                 isSelectMode: false, selectedIds: [], isDeletingBatch: false,
                 
-                // 🌟 分页状态
-                page: 1,
-                hasMore: true,
-                isLoadingMore: false,
+                page: 1, hasMore: true, isLoadingMore: false,
 
-                // 🌟 灯箱与滑动状态
+                // 🌟 沉浸式灯箱状态
                 isLightboxOpen: false,
                 activeImgIndex: null,
                 isZoomed: false,
+                showUI: true, // 🌟 新增：控制顶部/底部工具栏的显示
+                
+                // 触摸坐标记录
                 touchStartX: 0,
+                touchStartY: 0,
 
                 async init() { 
-                    this.executeSearch(); // 初始加载第一页
+                    this.executeSearch(); 
                     this.tempBgUrl = this.bgUrl;
                     this.tempName = this.galleryName;
                     document.title = this.galleryName;
                     this.$watch('galleryName', value => { document.title = value; });
                     if(this.isLoggedIn) this.fetchHistoryTags(); 
 
-                    // 🌟 触底自动加载监听器 (Intersection Observer)
                     const observer = new IntersectionObserver((entries) => {
                         if(entries[0].isIntersecting && this.hasMore && !this.isLoadingMore && this.images.length > 0) {
                             this.loadMore();
                         }
-                    }, { rootMargin: '200px' }); // 提前 200px 触发，体验更无缝
+                    }, { rootMargin: '200px' });
                     observer.observe(this.$refs.loadMoreTarget);
                 },
 
-                // 🌟 灯箱与滑动逻辑
+                // 🌟 全新灯箱逻辑
                 openLightbox(index) {
                     this.activeImgIndex = index;
                     this.isZoomed = false;
+                    this.showUI = true; // 打开时默认显示 UI
                     this.isLightboxOpen = true;
                     document.body.style.overflow = 'hidden';
                 },
                 closeLightbox() {
                     this.isLightboxOpen = false;
                     document.body.style.overflow = '';
-                    setTimeout(() => { this.activeImgIndex = null; this.isZoomed = false; }, 300);
+                    setTimeout(() => { this.activeImgIndex = null; this.isZoomed = false; this.showUI = true; }, 300);
                 },
                 prevImg() {
                     if (!this.isLightboxOpen || this.images.length <= 1) return;
                     this.isZoomed = false;
+                    this.showUI = true;
                     this.activeImgIndex = (this.activeImgIndex - 1 + this.images.length) % this.images.length;
                 },
                 nextImg() {
                     if (!this.isLightboxOpen || this.images.length <= 1) return;
                     this.isZoomed = false;
+                    this.showUI = true;
                     this.activeImgIndex = (this.activeImgIndex + 1) % this.images.length;
                 },
-                handleSwipe(touchEndX) {
-                    const diff = this.touchStartX - touchEndX;
-                    if (diff > 50) this.nextImg(); // 左滑看下一张
-                    else if (diff < -50) this.prevImg(); // 右滑看上一张
+                // 🌟 复刻 Apple Photos 手势：左右切图，上下拉关闭
+                handleSwipe(touchEndX, touchEndY) {
+                    if (this.isZoomed) return; // 如果图片处于放大状态，允许用户随意拖动，不触发关闭/切换
+
+                    const diffX = this.touchStartX - touchEndX;
+                    const diffY = this.touchStartY - touchEndY;
+
+                    // 判断是水平滑动还是垂直滑动为主
+                    if (Math.abs(diffX) > Math.abs(diffY)) {
+                        // 水平滑动切图
+                        if (diffX > 50) this.nextImg();
+                        else if (diffX < -50) this.prevImg();
+                    } else {
+                        // 🌟 垂直滑动：无论是上滑还是下滑，只要幅度够大就关闭大图
+                        if (Math.abs(diffY) > 80) {
+                            this.closeLightbox();
+                        }
+                    }
                 },
 
-                // 🌟 分页搜索与加载逻辑
                 async executeSearch() {
-                    this.page = 1;
-                    this.hasMore = true;
+                    this.page = 1; this.hasMore = true;
                     const res = await fetch(\`/api/search?q=\${this.searchQuery}&page=\${this.page}\`);
                     if(res.ok) {
                         const data = await res.json();
                         this.images = data;
-                        if(data.length < 50) this.hasMore = false; // 假设每页 50 条
+                        if(data.length < 50) this.hasMore = false; 
                     }
                 },
                 async loadMore() {
-                    this.isLoadingMore = true;
-                    this.page++;
+                    this.isLoadingMore = true; this.page++;
                     const res = await fetch(\`/api/search?q=\${this.searchQuery}&page=\${this.page}\`);
                     if(res.ok) {
                         const data = await res.json();
@@ -381,7 +394,6 @@ const html = (isLoggedIn: boolean) => `
                             const res = await fetch('/api/file/' + id, { method: 'DELETE' });
                             if(res.ok) {
                                 deleted++;
-                                // 立即从前端数组中移除以加快响应视觉
                                 this.images = this.images.filter(img => img.id !== id);
                             }
                         } catch(e) {}
@@ -396,11 +408,10 @@ const html = (isLoggedIn: boolean) => `
                 async deleteImage(id, index) { 
                     if(confirm('确定永久删除该文件吗?')) { 
                         await fetch('/api/file/'+id, {method:'DELETE'}); 
-                        this.images.splice(index, 1); // 优化：无须全量刷新，直接移除 DOM
+                        this.images.splice(index, 1); 
                     } 
                 },
 
-                // 设置背景名称逻辑保持不变...
                 saveName() { if(this.tempName.trim()) { this.galleryName = this.tempName; localStorage.setItem('my_gallery_name', this.galleryName); } },
                 saveBgUrl() { if(this.tempBgUrl.trim()) { this.bgUrl = this.tempBgUrl; localStorage.setItem('my_gallery_bg', this.bgUrl); this.showSettings = false; } },
                 async uploadBg() { /*...*/ },
@@ -409,7 +420,6 @@ const html = (isLoggedIn: boolean) => `
                 async logout() { await fetch('/api/logout', { method:'POST'}); window.location.reload(); },
                 async fetchHistoryTags() { const res = await fetch('/api/tags'); if(res.ok) this.historyTags = await res.json(); },
                 
-                // 🌟 上传加入前端生成缩略图逻辑
                 async upload() {
                     const files = this.$refs.fileInput.files;
                     if(!files.length) return alert('请选文件');
@@ -424,11 +434,8 @@ const html = (isLoggedIn: boolean) => `
                         fd.append('file', file); 
                         fd.append('tags', this.manualTags);
                         
-                        // 生成缩略图并附加到表单中
                         const thumbBlob = await generateThumbnail(file);
-                        if (thumbBlob) {
-                            fd.append('thumb', thumbBlob, 'thumb.webp');
-                        }
+                        if (thumbBlob) fd.append('thumb', thumbBlob, 'thumb.webp');
 
                         try {
                             const res = await fetch('/api/upload', {method:'POST', body:fd});
@@ -441,7 +448,7 @@ const html = (isLoggedIn: boolean) => `
 
                     this.$refs.fileInput.value = ''; 
                     this.manualTags = ''; 
-                    this.executeSearch(); // 刷新第一页
+                    this.executeSearch(); 
                     this.fetchHistoryTags();
                     this.isUploading = false;
                 }
@@ -472,15 +479,29 @@ app.post('/api/logout', (c) => {
   return c.json({ ok: true });
 });
 
-app.get('/api/settings/bg', async (c) => { /*...*/ return c.notFound(); }); // 简化保留
-app.post('/api/settings/bg', async (c) => { /*...*/ return c.json({success: true}); }); 
+app.get('/api/settings/bg', async (c) => {
+  const obj = await c.env.BUCKET.get('_site_custom_bg_');
+  if (!obj) return c.notFound();
+  const headers = new Headers();
+  obj.writeHttpMetadata(headers);
+  headers.set('Cache-Control', 'public, max-age=86400');
+  return new Response(obj.body, { headers });
+});
+
+app.post('/api/settings/bg', async (c) => {
+  if (!checkAuth(c)) return c.json({ error: 'Unauthorized' }, 401);
+  const fd = await c.req.parseBody();
+  const file = fd['file'];
+  if (!(file instanceof File)) return c.json({ error: 'No file' }, 400);
+  await c.env.BUCKET.put('_site_custom_bg_', file.stream(), { httpMetadata: { contentType: file.type } });
+  return c.json({ success: true, url: '/api/settings/bg' });
+});
 
 app.get('/api/tags', async (c) => {
   const { results } = await c.env.DB.prepare('SELECT DISTINCT tag FROM image_tags ORDER BY tag ASC LIMIT 100').all();
   return c.json(results.map((r: any) => r.tag));
 });
 
-// 🌟 优化后端：增加分页支持
 app.get('/api/search', async (c) => {
   const term = `%${c.req.query('q') || ''}%`;
   const page = parseInt(c.req.query('page') || '1', 10);
@@ -498,14 +519,13 @@ app.get('/api/search', async (c) => {
   return c.json(results.map((r: any) => ({ ...r, tags: r.tags_str ? r.tags_str.split(',') : [] })));
 });
 
-// 🌟 优化后端：智能降级加载缩略图
 app.get('/api/file/:id', async (c) => {
   const cache = caches.default, key = c.req.url;
   const cached = await cache.match(key);
   if (cached) return new Response(cached.body, cached);
 
   const id = c.req.param('id');
-  const isThumbReq = c.req.query('thumb') === 'true'; // 判断前端是否在请求缩略图
+  const isThumbReq = c.req.query('thumb') === 'true'; 
   
   const file = await c.env.DB.prepare('SELECT r2_key FROM images WHERE id = ?').bind(id).first();
   if (!file) return c.notFound();
@@ -513,11 +533,9 @@ app.get('/api/file/:id', async (c) => {
   const r2Key = file.r2_key as string;
   let obj = null;
 
-  // 尝试获取缩略图
   if (isThumbReq) {
       obj = await c.env.BUCKET.get(r2Key + '_thumb');
   }
-  // 如果不是请求缩略图，或者请求缩略图但 R2 里没找到（老照片兼容），则直接获取原图
   if (!obj) {
       obj = await c.env.BUCKET.get(r2Key);
   }
@@ -534,12 +552,11 @@ app.get('/api/file/:id', async (c) => {
   return res;
 });
 
-// 🌟 优化后端：接收并保存缩略图
 app.post('/api/upload', async (c) => {
   if (!checkAuth(c)) return c.json({ error: 'Unauthorized' }, 401);
   const fd = await c.req.parseBody();
   const file = fd['file'];
-  const thumb = fd['thumb']; // 接收前端生成的缩略图
+  const thumb = fd['thumb'];
   const tagsStr = fd['tags'] as string;
   
   if (!(file instanceof File)) return c.json({ error: 'No file' }, 400);
@@ -548,10 +565,8 @@ app.post('/api/upload', async (c) => {
   const uniqueTags = [...new Set(tags)];
   const id = crypto.randomUUID();
   
-  // 1. 保存原文件
   await c.env.BUCKET.put(id, file.stream(), { httpMetadata: { contentType: file.type } });
   
-  // 2. 如果前端传了缩略图，保存缩略图 (后缀加 _thumb)
   if (thumb instanceof File) {
       await c.env.BUCKET.put(id + '_thumb', thumb.stream(), { httpMetadata: { contentType: 'image/webp' } });
   }
@@ -565,16 +580,13 @@ app.post('/api/upload', async (c) => {
   return c.json({ success: true });
 });
 
-// 🌟 优化后端：删除时连同缩略图一起删干净
 app.delete('/api/file/:id', async (c) => {
   if (!checkAuth(c)) return c.json({ error: 'Unauthorized' }, 401);
   const id = c.req.param('id');
   const file = await c.env.DB.prepare('SELECT r2_key FROM images WHERE id = ?').bind(id).first();
   if (file) {
     const r2Key = file.r2_key as string;
-    // 删原图
     await c.env.BUCKET.delete(r2Key);
-    // 删缩略图 (如果有的话)
     await c.env.BUCKET.delete(r2Key + '_thumb');
     
     await c.env.DB.prepare('DELETE FROM image_tags WHERE image_id = ?').bind(id).run();
