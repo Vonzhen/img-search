@@ -9,13 +9,13 @@ type Bindings = {
 
 const app = new Hono<{ Bindings: Bindings }>();
 
-// ================= 高颜值 UI 部分 =================
+// ================= 高颜值 & 全自适应 UI 部分 =================
 const html = (isLoggedIn: boolean) => `
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>幻彩图库</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/alpinejs/3.13.5/cdn.min.js" defer></script>
@@ -27,47 +27,55 @@ const html = (isLoggedIn: boolean) => `
         [x-cloak] { display: none !important; }
     </style>
 </head>
-<body class="min-h-screen p-4 transition-all duration-700 ease-in-out text-gray-800 relative" 
+<body class="min-h-screen p-3 md:p-6 transition-all duration-700 ease-in-out text-gray-800 relative" 
       :style="\`background-image: url('\${bgUrl}'); background-size: cover; background-attachment: fixed; background-position: center;\`" 
       x-data="app()">
     
     <div class="fixed inset-0 bg-black/10 -z-10 pointer-events-none"></div>
 
     <div class="max-w-6xl mx-auto relative z-10">
-        <div class="flex justify-between items-center mb-8 bg-white/70 backdrop-blur-xl p-5 rounded-2xl shadow-lg border border-white/50">
-            <h1 class="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 tracking-tight">
+        
+        <div class="flex justify-between items-center mb-6 md:mb-8 bg-white/70 backdrop-blur-xl p-3 md:p-5 rounded-xl md:rounded-2xl shadow-lg border border-white/50 relative z-50">
+            <h1 class="text-lg md:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 tracking-tight whitespace-nowrap">
                 ✨ 幻彩图库
             </h1>
             
-            <div class="flex items-center gap-4">
-                <div class="relative">
-                    <button @click="showSettings = !showSettings" class="text-gray-600 hover:text-indigo-600 transition-colors p-2 rounded-full hover:bg-white/50">
-                        🎨 换背景
-                    </button>
-                    <div x-show="showSettings" @click.away="showSettings = false" x-cloak class="absolute right-0 mt-2 w-72 bg-white/90 backdrop-blur-xl p-4 rounded-xl shadow-2xl border border-white/50 z-50 transition-all">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">图片 URL</label>
-                        <input type="text" x-model="tempBgUrl" placeholder="输入图片链接..." class="w-full p-2 border border-gray-300 rounded-lg mb-3 outline-none focus:ring-2 focus:ring-indigo-500 bg-white/50">
-                        <div class="flex gap-2">
-                            <button @click="saveBg" class="flex-1 bg-gradient-to-r from-indigo-500 to-purple-500 text-white py-1.5 rounded-lg text-sm shadow hover:shadow-lg transition">保存</button>
-                            <button @click="resetBg" class="flex-1 bg-gray-200 text-gray-700 py-1.5 rounded-lg text-sm hover:bg-gray-300 transition">恢复</button>
+            <div class="flex items-center gap-2 md:gap-4">
+                <button x-show="!isLoggedIn" @click="showLoginModal = true" class="text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 px-2 py-1 md:px-3 md:py-1.5 rounded-lg transition-colors text-xs md:text-sm font-medium whitespace-nowrap">
+                    管理员登录
+                </button>
+
+                <div x-show="isLoggedIn" x-cloak class="flex items-center gap-2 md:gap-4">
+                    <div class="relative">
+                        <button @click="showSettings = !showSettings" class="text-gray-600 hover:text-indigo-600 transition-colors p-1.5 md:p-2 rounded-full hover:bg-white/50 text-xs md:text-sm whitespace-nowrap flex items-center gap-1">
+                            🎨 <span class="hidden sm:inline">换背景</span>
+                        </button>
+                        <div x-show="showSettings" @click.away="showSettings = false" x-cloak class="absolute right-0 mt-2 w-64 md:w-72 bg-white/90 backdrop-blur-xl p-4 rounded-xl shadow-2xl border border-white/50 z-[100] transition-all">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">图片 URL</label>
+                            <input type="text" x-model="tempBgUrl" placeholder="输入图片链接..." class="w-full p-2 border border-gray-300 rounded-lg mb-3 outline-none focus:ring-2 focus:ring-indigo-500 bg-white/50 text-sm">
+                            <div class="flex gap-2">
+                                <button @click="saveBg" class="flex-1 bg-gradient-to-r from-indigo-500 to-purple-500 text-white py-1.5 rounded-lg text-sm shadow hover:shadow-lg transition">保存</button>
+                                <button @click="resetBg" class="flex-1 bg-gray-200 text-gray-700 py-1.5 rounded-lg text-sm hover:bg-gray-300 transition">恢复</button>
+                            </div>
                         </div>
                     </div>
+                    
+                    <div class="w-px h-4 md:h-6 bg-gray-300/50"></div>
+                    
+                    <button @click="logout" class="text-red-500 hover:text-red-600 hover:bg-red-50 px-2 py-1 md:px-3 md:py-1.5 rounded-lg transition-colors text-xs md:text-sm font-medium whitespace-nowrap">
+                        退出管理
+                    </button>
                 </div>
-                
-                <div class="w-px h-6 bg-gray-300/50"></div>
-                
-                <button x-show="!isLoggedIn" @click="showLoginModal = true" class="text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 px-3 py-1.5 rounded-lg transition-colors text-sm font-medium">管理员登录</button>
-                <button x-show="isLoggedIn" @click="logout" x-cloak class="text-red-500 hover:text-red-600 hover:bg-red-50 px-3 py-1.5 rounded-lg transition-colors text-sm font-medium">退出管理</button>
             </div>
         </div>
 
-        <div x-show="showLoginModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm transition-opacity">
-            <div @click.away="showLoginModal = false" class="bg-white/90 backdrop-blur-xl p-8 rounded-3xl shadow-2xl border border-white/50 w-96 text-center transform transition-all">
+        <div x-show="showLoginModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm transition-opacity p-4">
+            <div @click.away="showLoginModal = false" class="bg-white/90 backdrop-blur-xl p-6 md:p-8 rounded-3xl shadow-2xl border border-white/50 w-full max-w-sm text-center transform transition-all">
                 <div class="w-16 h-16 bg-gradient-to-tr from-indigo-500 to-purple-500 rounded-2xl mx-auto mb-4 shadow-lg flex items-center justify-center">
                     <span class="text-3xl">🔐</span>
                 </div>
                 <h2 class="text-xl font-bold mb-6 text-gray-800">管理员鉴权</h2>
-                <input type="password" x-model="password" @keyup.enter="login" class="border-0 ring-1 ring-gray-300 p-3 rounded-xl w-full mb-6 outline-none focus:ring-2 focus:ring-indigo-500 bg-white/50 text-center text-lg tracking-widest shadow-inner" placeholder="输入密码解锁上传">
+                <input type="password" x-model="password" @keyup.enter="login" class="border-0 ring-1 ring-gray-300 p-3 rounded-xl w-full mb-6 outline-none focus:ring-2 focus:ring-indigo-500 bg-white/50 text-center text-lg tracking-widest shadow-inner" placeholder="输入密码解锁权限">
                 <div class="flex gap-3">
                     <button @click="showLoginModal = false" class="flex-1 bg-gray-200 text-gray-700 py-2.5 rounded-xl hover:bg-gray-300 transition font-medium">取消</button>
                     <button @click="login" class="flex-1 bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-2.5 rounded-xl hover:shadow-lg transition font-medium">验证</button>
@@ -75,43 +83,45 @@ const html = (isLoggedIn: boolean) => `
             </div>
         </div>
 
-        <div x-show="isLoggedIn" x-cloak class="bg-white/70 backdrop-blur-xl p-6 rounded-2xl shadow-lg border border-white/50 mb-8 flex flex-col md:flex-row gap-6 items-end transition-all">
+        <div x-show="isLoggedIn" x-cloak class="bg-white/70 backdrop-blur-xl p-4 md:p-6 rounded-2xl shadow-lg border border-white/50 mb-6 md:mb-8 flex flex-col md:flex-row gap-4 md:gap-6 md:items-end transition-all">
             <div class="flex-1 w-full">
-                <label class="text-sm font-semibold text-gray-700 mb-2 block flex items-center gap-2"><span>1</span> 选取相片 (可多选)</label>
-                <input type="file" x-ref="fileInput" accept="image/*" multiple class="block w-full text-sm text-gray-600 file:mr-4 file:py-2.5 file:px-5 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-600 hover:file:bg-indigo-100 cursor-pointer transition-colors"/>
+                <label class="text-sm font-semibold text-gray-700 mb-2 block flex items-center gap-1"><span>1️⃣</span> 选取相片 (可多选)</label>
+                <input type="file" x-ref="fileInput" accept="image/*" multiple class="block w-full text-sm text-gray-600 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-600 hover:file:bg-indigo-100 cursor-pointer transition-colors"/>
             </div>
             <div class="flex-1 w-full">
-                <label class="text-sm font-semibold text-gray-700 mb-2 block flex items-center gap-2"><span>2</span> 标记属性 (支持联想)</label>
-                <input type="text" x-model="manualTags" list="history-tags" placeholder="如: 旅行 海边 2026..." class="w-full p-2.5 bg-white/50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white shadow-sm transition-all">
+                <label class="text-sm font-semibold text-gray-700 mb-2 block flex items-center gap-1"><span>2️⃣</span> 标记属性 (支持联想)</label>
+                <input type="text" x-model="manualTags" list="history-tags" placeholder="如: 旅行 海边 2026..." class="w-full p-2 bg-white/50 border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm transition-all text-sm md:text-base">
                 <datalist id="history-tags"><template x-for="tag in historyTags"><option :value="tag"></option></template></datalist>
             </div>
-            <button @click="upload" class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-8 py-2.5 rounded-xl shadow-md hover:shadow-xl hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium" :disabled="isUploading">
+            <button @click="upload" class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-2 rounded-lg shadow-md hover:shadow-xl hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium text-sm md:text-base w-full md:w-auto" :disabled="isUploading">
                 <span x-text="isUploading ? '处理中...' : '极速上传'"></span>
             </button>
         </div>
 
-        <div class="mb-8 relative group">
+        <div class="mb-6 md:mb-8 relative group z-10">
             <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                 <span class="text-gray-400 group-focus-within:text-indigo-500 transition-colors">🔍</span>
             </div>
-            <input type="text" x-model="searchQuery" @input.debounce.300ms="search" placeholder="搜索任何你想找的画面..." class="w-full pl-12 pr-4 py-4 bg-white/80 backdrop-blur-xl border border-white/60 rounded-2xl shadow-lg text-lg outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all placeholder-gray-400">
+            <input type="text" x-model="searchQuery" @input.debounce.300ms="search" placeholder="搜索你想找的画面..." class="w-full pl-11 pr-4 py-3 md:py-4 bg-white/80 backdrop-blur-xl border border-white/60 rounded-xl md:rounded-2xl shadow-lg text-base md:text-lg outline-none focus:ring-2 focus:ring-indigo-500 transition-all placeholder-gray-400">
         </div>
 
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6">
             <template x-for="img in images" :key="img.id">
-                <div class="bg-white/80 backdrop-blur-md rounded-2xl shadow-sm hover:shadow-2xl border border-white/50 overflow-hidden group transition-all duration-300 hover:-translate-y-1">
-                    <div class="aspect-w-1 aspect-h-1 bg-gray-100/50 relative overflow-hidden">
-                        <a :href="'/api/file/' + img.id" target="_blank">
-                            <img :src="'/api/file/' + img.id" class="object-cover w-full h-56 group-hover:scale-110 transition-transform duration-500 cursor-zoom-in" loading="lazy">
+                <div class="bg-white/80 backdrop-blur-md rounded-xl md:rounded-2xl shadow-sm hover:shadow-xl border border-white/50 overflow-hidden group transition-all duration-300 hover:-translate-y-1">
+                    
+                    <div class="aspect-square bg-gray-100/50 relative overflow-hidden">
+                        <a :href="'/api/file/' + img.id" target="_blank" class="w-full h-full block">
+                            <img :src="'/api/file/' + img.id" class="object-cover w-full h-full group-hover:scale-110 transition-transform duration-500 cursor-zoom-in" loading="lazy">
                         </a>
                     </div>
-                    <div class="p-4">
-                        <div class="flex flex-wrap gap-1.5 mb-3 min-h-[28px]">
+
+                    <div class="p-3 md:p-4">
+                        <div class="flex flex-wrap gap-1 mb-2 md:mb-3 min-h-[24px]">
                             <template x-for="tag in img.tags">
-                                <span class="bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-100/50 text-indigo-700 text-[10px] px-2.5 py-1 rounded-lg font-medium tracking-wide shadow-sm" x-text="tag"></span>
+                                <span class="bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-100/50 text-indigo-700 text-[10px] md:text-xs px-2 py-0.5 md:py-1 rounded font-medium tracking-wide shadow-sm" x-text="tag"></span>
                             </template>
                         </div>
-                        <div class="flex justify-between items-center text-xs text-gray-400 border-t border-gray-100 pt-3">
+                        <div class="flex justify-between items-center text-[10px] md:text-xs text-gray-400 border-t border-gray-100 pt-2 md:pt-3">
                             <span class="font-medium" x-text="new Date(img.created_at).toLocaleDateString()"></span>
                             <button x-show="isLoggedIn" @click="deleteImage(img.id)" class="text-red-400 hover:text-white hover:bg-red-500 px-2 py-1 rounded transition-colors">删除</button>
                         </div>
@@ -120,9 +130,9 @@ const html = (isLoggedIn: boolean) => `
             </template>
         </div>
         
-        <div x-show="images.length === 0" x-cloak class="text-center py-20 bg-white/50 backdrop-blur-md rounded-2xl border border-white/50 mt-8 shadow-sm">
-            <div class="text-6xl mb-4 opacity-50">🍃</div>
-            <p class="text-gray-500 text-lg font-medium">这里空空如也</p>
+        <div x-show="images.length === 0" x-cloak class="text-center py-16 md:py-20 bg-white/50 backdrop-blur-md rounded-2xl border border-white/50 mt-8 shadow-sm mx-4 md:mx-0">
+            <div class="text-5xl md:text-6xl mb-4 opacity-50">🍃</div>
+            <p class="text-gray-500 text-base md:text-lg font-medium">这里空空如也</p>
         </div>
     </div>
     
@@ -137,10 +147,10 @@ const html = (isLoggedIn: boolean) => `
                 tempBgUrl: '',
 
                 async init() { 
-                    this.search(); // 所有人进来都能触发搜索看图
+                    this.search(); 
                     this.tempBgUrl = this.bgUrl;
                     if(this.isLoggedIn) {
-                        this.fetchHistoryTags(); // 只有登录了才拉取标签供联想
+                        this.fetchHistoryTags(); 
                     }
                 },
                 saveBg() {
@@ -186,7 +196,6 @@ const html = (isLoggedIn: boolean) => `
                                 successCount++;
                             } else {
                                 failCount++;
-                                console.error('后端报错:', await res.text());
                             }
                         } catch(e) { 
                             failCount++;
@@ -194,11 +203,10 @@ const html = (isLoggedIn: boolean) => `
                         }
                     }
 
-                    // 🌟 加回了状态提示弹窗！
                     if (failCount > 0) {
-                        alert(`执行完毕！成功 ${successCount} 张，失败 ${failCount} 张。\n(可能是数据库没建表，或者 ID 没填对)`);
+                        alert(\`执行完毕！成功 \${successCount} 张，失败 \${failCount} 张。\`);
                     } else {
-                        alert(`🎉 完美！成功上传 ${successCount} 张照片！`);
+                        alert(\`🎉 完美！成功上传 \${successCount} 张照片！\`);
                     }
 
                     this.$refs.fileInput.value = ''; 
@@ -215,15 +223,12 @@ const html = (isLoggedIn: boolean) => `
 </html>
 `;
 
-// ================= 后端逻辑 =================
+// ================= 后端逻辑 (保持不变) =================
 
-// 辅助鉴权函数
 const checkAuth = (c: any) => getCookie(c, 'auth_token') === c.env.TEAM_PASSWORD;
 
-// 1. 首页 (任何人可访问，注入登录状态)
 app.get('/', (c) => c.html(html(checkAuth(c))));
 
-// 2. 登录接口
 app.post('/api/login', async (c) => {
   const { pass } = await c.req.json();
   if (pass === c.env.TEAM_PASSWORD) {
@@ -233,21 +238,16 @@ app.post('/api/login', async (c) => {
   return c.json({ error: 'Wrong' }, 401);
 });
 
-// 3. 退出接口
 app.post('/api/logout', (c) => {
   setCookie(c, 'auth_token', '', { maxAge: 0, path: '/' });
   return c.json({ ok: true });
 });
 
-// ---------------- 以下是业务接口 ----------------
-
-// 4. 获取历史标签 (完全公开，但其实只有上传时前端才调用)
 app.get('/api/tags', async (c) => {
   const { results } = await c.env.DB.prepare('SELECT DISTINCT tag FROM image_tags ORDER BY tag ASC LIMIT 100').all();
   return c.json(results.map((r: any) => r.tag));
 });
 
-// 5. 搜索接口 (完全公开，无需鉴权即可看图)
 app.get('/api/search', async (c) => {
   const term = `%${c.req.query('q') || ''}%`;
   const { results } = await c.env.DB.prepare(`
@@ -259,7 +259,6 @@ app.get('/api/search', async (c) => {
   return c.json(results.map((r: any) => ({ ...r, tags: r.tags_str ? r.tags_str.split(',') : [] })));
 });
 
-// 6. 查看看图 (完全公开，带缓存机制)
 app.get('/api/file/:id', async (c) => {
   const cache = caches.default, key = c.req.url;
   const cached = await cache.match(key);
@@ -275,19 +274,15 @@ app.get('/api/file/:id', async (c) => {
   const headers = new Headers();
   obj.writeHttpMetadata(headers);
   headers.set('etag', obj.httpEtag);
-  headers.set('Cache-Control', 'public, max-age=14400'); // 允许访客缓存 4 小时
+  headers.set('Cache-Control', 'public, max-age=14400');
   
   const res = new Response(obj.body, { headers });
   c.executionCtx.waitUntil(cache.put(key, res.clone()));
   return res;
 });
 
-// ---------------- 以下是敏感接口 (必须鉴权) ----------------
-
-// 7. 上传接口 (仅管理员可传)
 app.post('/api/upload', async (c) => {
-  if (!checkAuth(c)) return c.json({ error: 'Unauthorized' }, 401); // 🔴 鉴权拦截
-
+  if (!checkAuth(c)) return c.json({ error: 'Unauthorized' }, 401);
   const fd = await c.req.parseBody();
   const file = fd['file'];
   const tagsStr = fd['tags'] as string;
@@ -308,10 +303,8 @@ app.post('/api/upload', async (c) => {
   return c.json({ success: true });
 });
 
-// 8. 删除接口 (仅管理员可删)
 app.delete('/api/file/:id', async (c) => {
-  if (!checkAuth(c)) return c.json({ error: 'Unauthorized' }, 401); // 🔴 鉴权拦截
-
+  if (!checkAuth(c)) return c.json({ error: 'Unauthorized' }, 401);
   const id = c.req.param('id');
   const file = await c.env.DB.prepare('SELECT r2_key FROM images WHERE id = ?').bind(id).first();
   if (file) {
