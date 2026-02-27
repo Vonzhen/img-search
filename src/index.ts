@@ -174,6 +174,7 @@ const html = (isLoggedIn: boolean) => `
                     
                     this.isUploading = true;
                     let successCount = 0;
+                    let failCount = 0;
 
                     for(let i = 0; i < files.length; i++) {
                         const fd = new FormData(); 
@@ -181,8 +182,23 @@ const html = (isLoggedIn: boolean) => `
                         fd.append('tags', this.manualTags);
                         try {
                             const res = await fetch('/api/upload', {method:'POST', body:fd});
-                            if(res.ok) successCount++;
-                        } catch(e) { console.error('上传出错', e); }
+                            if(res.ok) {
+                                successCount++;
+                            } else {
+                                failCount++;
+                                console.error('后端报错:', await res.text());
+                            }
+                        } catch(e) { 
+                            failCount++;
+                            console.error('上传出错', e); 
+                        }
+                    }
+
+                    // 🌟 加回了状态提示弹窗！
+                    if (failCount > 0) {
+                        alert(`执行完毕！成功 ${successCount} 张，失败 ${failCount} 张。\n(可能是数据库没建表，或者 ID 没填对)`);
+                    } else {
+                        alert(`🎉 完美！成功上传 ${successCount} 张照片！`);
                     }
 
                     this.$refs.fileInput.value = ''; 
