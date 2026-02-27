@@ -1,0 +1,12 @@
+name = "img-search"
+main = "src/index.ts"
+compatibility_date = "2024-02-12"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "img_db"
+database_id = "99b6c738-d7aa-4902-80bf-2aa90093ea3f"
+
+[[r2_buckets]]
+binding = "BUCKET"
+bucket_name = "img-bucket"
