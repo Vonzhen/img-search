@@ -107,7 +107,7 @@ const html = (isLoggedIn: boolean) => `
         <div x-show="isLoggedIn" x-cloak class="bg-white/70 backdrop-blur-xl p-4 md:p-6 rounded-2xl shadow-lg border border-white/50 mb-6 md:mb-8 flex flex-col md:flex-row gap-4 md:gap-6 md:items-end transition-all">
             <div class="flex-1 w-full">
                 <label class="text-sm font-semibold text-gray-700 mb-2 block flex items-center gap-1"><span>1️⃣</span> 选取相片 (可多选)</label>
-                <input type="file" x-ref="fileInput" accept="image/*" multiple class="block w-full text-sm text-gray-600 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-600 hover:file:bg-indigo-100 cursor-pointer transition-colors"/>
+                <input type="file" x-ref="fileInput" accept="image/*,video/*" multiple class="block w-full text-sm text-gray-600 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-600 hover:file:bg-indigo-100 cursor-pointer transition-colors"/>
             </div>
             <div class="flex-1 w-full">
                 <label class="text-sm font-semibold text-gray-700 mb-2 block flex items-center gap-1"><span>2️⃣</span> 标记属性 (支持联想)</label>
@@ -151,8 +151,17 @@ const html = (isLoggedIn: boolean) => `
                         </div>
 
                         <a :href="isSelectMode ? 'javascript:void(0)' : '/api/file/' + img.id" :target="isSelectMode ? '_self' : '_blank'" class="w-full h-full block">
-                            <img :src="'/api/file/' + img.id" class="object-cover w-full h-full transition-transform duration-500" :class="isSelectMode ? '' : 'group-hover:scale-110 cursor-zoom-in'" loading="lazy">
-                        </a>
+    
+    <video x-show="img.filename.match(/\\.(mp4|mov|webm)$/i)" :src="'/api/file/' + img.id" 
+           class="object-cover w-full h-full transition-transform duration-500" 
+           :class="isSelectMode ? '' : 'group-hover:scale-110 cursor-zoom-in'" 
+           autoplay loop muted playsinline></video>
+           
+    <img x-show="!img.filename.match(/\\.(mp4|mov|webm)$/i)" :src="'/api/file/' + img.id" 
+         class="object-cover w-full h-full transition-transform duration-500" 
+         :class="isSelectMode ? '' : 'group-hover:scale-110 cursor-zoom-in'" loading="lazy">
+         
+</a>
                     </div>
                     <div class="p-3 md:p-4">
                         <div class="flex flex-wrap gap-1 mb-2 md:mb-3 min-h-[24px]">
