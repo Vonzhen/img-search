@@ -16,7 +16,7 @@ const html = (isLoggedIn: boolean) => `
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>幻彩图库</title>
+    <title>我的图库</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/alpinejs/3.13.5/cdn.min.js" defer></script>
     <style>
@@ -36,8 +36,7 @@ const html = (isLoggedIn: boolean) => `
     <div class="max-w-6xl mx-auto relative z-10">
         
         <div class="flex justify-between items-center mb-6 md:mb-8 bg-white/70 backdrop-blur-xl p-3 md:p-5 rounded-xl md:rounded-2xl shadow-lg border border-white/50 relative z-50">
-            <h1 class="text-lg md:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 tracking-tight whitespace-nowrap">
-                ✨ 幻彩图库
+            <h1 class="text-lg md:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 tracking-tight whitespace-nowrap" x-text="galleryName">
             </h1>
             
             <div class="flex items-center gap-2 md:gap-4">
@@ -46,16 +45,45 @@ const html = (isLoggedIn: boolean) => `
                 </button>
 
                 <div x-show="isLoggedIn" x-cloak class="flex items-center gap-2 md:gap-4">
+                    
                     <div class="relative">
                         <button @click="showSettings = !showSettings" class="text-gray-600 hover:text-indigo-600 transition-colors p-1.5 md:p-2 rounded-full hover:bg-white/50 text-xs md:text-sm whitespace-nowrap flex items-center gap-1">
-                            🎨 <span class="hidden sm:inline">换背景</span>
+                            ⚙️ <span class="hidden sm:inline">设置</span>
                         </button>
-                        <div x-show="showSettings" @click.away="showSettings = false" x-cloak class="absolute right-0 mt-2 w-64 md:w-72 bg-white/90 backdrop-blur-xl p-4 rounded-xl shadow-2xl border border-white/50 z-[100] transition-all">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">图片 URL</label>
-                            <input type="text" x-model="tempBgUrl" placeholder="输入图片链接..." class="w-full p-2 border border-gray-300 rounded-lg mb-3 outline-none focus:ring-2 focus:ring-indigo-500 bg-white/50 text-sm">
-                            <div class="flex gap-2">
-                                <button @click="saveBg" class="flex-1 bg-gradient-to-r from-indigo-500 to-purple-500 text-white py-1.5 rounded-lg text-sm shadow hover:shadow-lg transition">保存</button>
-                                <button @click="resetBg" class="flex-1 bg-gray-200 text-gray-700 py-1.5 rounded-lg text-sm hover:bg-gray-300 transition">恢复</button>
+                        
+                        <div x-show="showSettings" @click.away="showSettings = false" x-cloak class="absolute right-0 mt-2 w-72 md:w-80 bg-white/95 backdrop-blur-xl p-5 rounded-xl shadow-2xl border border-white/50 z-[100] transition-all">
+                            
+                            <div class="mb-4">
+                                <label class="block text-sm font-bold text-gray-700 mb-2">🏷️ 图库名称</label>
+                                <div class="flex gap-2">
+                                    <input type="text" x-model="tempName" class="w-full p-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 bg-white/50 text-sm">
+                                    <button @click="saveName" class="bg-indigo-100 text-indigo-700 px-3 py-2 rounded-lg text-sm hover:bg-indigo-200 transition font-medium">应用</button>
+                                </div>
+                            </div>
+
+                            <hr class="border-gray-200 mb-4">
+
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">🎨 背景设置</label>
+                                
+                                <div class="flex gap-2 mb-3">
+                                    <button @click="bgMode = 'url'" :class="bgMode === 'url' ? 'bg-indigo-500 text-white shadow' : 'bg-gray-100 text-gray-600'" class="flex-1 py-1.5 rounded-md text-xs font-medium transition">网络链接</button>
+                                    <button @click="bgMode = 'upload'" :class="bgMode === 'upload' ? 'bg-indigo-500 text-white shadow' : 'bg-gray-100 text-gray-600'" class="flex-1 py-1.5 rounded-md text-xs font-medium transition">本地上传</button>
+                                </div>
+
+                                <div x-show="bgMode === 'url'" class="flex flex-col gap-2">
+                                    <input type="text" x-model="tempBgUrl" placeholder="输入图片 URL..." class="w-full p-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 bg-white/50 text-sm">
+                                    <button @click="saveBgUrl" class="w-full bg-gradient-to-r from-indigo-500 to-purple-500 text-white py-2 rounded-lg text-sm shadow hover:shadow-lg transition font-medium">保存链接壁纸</button>
+                                </div>
+
+                                <div x-show="bgMode === 'upload'" class="flex flex-col gap-2">
+                                    <input type="file" x-ref="bgFileInput" accept="image/*" class="w-full text-xs text-gray-500 file:mr-2 file:py-1 file:px-3 file:rounded-md file:border-0 file:bg-indigo-50 file:text-indigo-700 cursor-pointer border border-gray-200 rounded-lg p-1 bg-white/50">
+                                    <button @click="uploadBg" :disabled="isUploadingBg" class="w-full bg-gradient-to-r from-indigo-500 to-purple-500 text-white py-2 rounded-lg text-sm shadow hover:shadow-lg transition font-medium disabled:opacity-50">
+                                        <span x-text="isUploadingBg ? '上传中...' : '上传并设为壁纸'"></span>
+                                    </button>
+                                </div>
+
+                                <button @click="resetBg" class="w-full mt-3 bg-gray-100 text-gray-500 py-1.5 rounded-lg text-xs hover:bg-gray-200 hover:text-gray-700 transition">恢复默认壁纸</button>
                             </div>
                         </div>
                     </div>
@@ -108,13 +136,11 @@ const html = (isLoggedIn: boolean) => `
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6">
             <template x-for="img in images" :key="img.id">
                 <div class="bg-white/80 backdrop-blur-md rounded-xl md:rounded-2xl shadow-sm hover:shadow-xl border border-white/50 overflow-hidden group transition-all duration-300 hover:-translate-y-1">
-                    
                     <div class="aspect-square bg-gray-100/50 relative overflow-hidden">
                         <a :href="'/api/file/' + img.id" target="_blank" class="w-full h-full block">
                             <img :src="'/api/file/' + img.id" class="object-cover w-full h-full group-hover:scale-110 transition-transform duration-500 cursor-zoom-in" loading="lazy">
                         </a>
                     </div>
-
                     <div class="p-3 md:p-4">
                         <div class="flex flex-wrap gap-1 mb-2 md:mb-3 min-h-[24px]">
                             <template x-for="tag in img.tags">
@@ -138,26 +164,71 @@ const html = (isLoggedIn: boolean) => `
     
     <script>
         const DEFAULT_BG = 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop';
+        const DEFAULT_NAME = '✨ 幻彩图库';
 
         function app() {
             return {
                 isLoggedIn: ${isLoggedIn}, password: '', isUploading: false, manualTags: '', searchQuery: '', images: [], historyTags: [],
                 showSettings: false, showLoginModal: false,
+                bgMode: 'url', // 'url' 或 'upload'
+                isUploadingBg: false,
+                
+                // 本地存储状态读取
                 bgUrl: localStorage.getItem('my_gallery_bg') || DEFAULT_BG,
                 tempBgUrl: '',
+                galleryName: localStorage.getItem('my_gallery_name') || DEFAULT_NAME,
+                tempName: '',
 
                 async init() { 
                     this.search(); 
                     this.tempBgUrl = this.bgUrl;
+                    this.tempName = this.galleryName;
                     if(this.isLoggedIn) {
                         this.fetchHistoryTags(); 
                     }
                 },
-                saveBg() {
-                    if(this.tempBgUrl.trim() === '') return;
-                    this.bgUrl = this.tempBgUrl;
-                    localStorage.setItem('my_gallery_bg', this.bgUrl);
-                    this.showSettings = false;
+
+                // --- 设置名称逻辑 ---
+                saveName() {
+                    if(this.tempName.trim()) {
+                        this.galleryName = this.tempName;
+                        localStorage.setItem('my_gallery_name', this.galleryName);
+                    }
+                },
+
+                // --- 设置背景逻辑 ---
+                saveBgUrl() {
+                    if(this.tempBgUrl.trim()) {
+                        this.bgUrl = this.tempBgUrl;
+                        localStorage.setItem('my_gallery_bg', this.bgUrl);
+                        this.showSettings = false;
+                    }
+                },
+                async uploadBg() {
+                    const fileInput = this.$refs.bgFileInput;
+                    if(!fileInput.files.length) return alert('请先选择背景图片');
+                    
+                    this.isUploadingBg = true;
+                    const fd = new FormData();
+                    fd.append('file', fileInput.files[0]);
+
+                    try {
+                        const res = await fetch('/api/settings/bg', {method: 'POST', body: fd});
+                        if (res.ok) {
+                            const data = await res.json();
+                            // 加上时间戳防止浏览器缓存老背景图
+                            this.bgUrl = data.url + '?t=' + Date.now();
+                            localStorage.setItem('my_gallery_bg', this.bgUrl);
+                            this.showSettings = false;
+                            fileInput.value = '';
+                        } else {
+                            alert('背景上传失败');
+                        }
+                    } catch(e) {
+                        console.error(e);
+                        alert('网络错误');
+                    }
+                    this.isUploadingBg = false;
                 },
                 resetBg() {
                     this.bgUrl = DEFAULT_BG;
@@ -165,6 +236,8 @@ const html = (isLoggedIn: boolean) => `
                     localStorage.removeItem('my_gallery_bg');
                     this.showSettings = false;
                 },
+
+                // --- 原有业务逻辑 ---
                 async login() { 
                     const res = await fetch('/api/login', { method:'POST', body:JSON.stringify({pass:this.password})}); 
                     if(res.ok) window.location.reload(); 
@@ -176,7 +249,6 @@ const html = (isLoggedIn: boolean) => `
                 },
                 async fetchHistoryTags() { const res = await fetch('/api/tags'); if(res.ok) this.historyTags = await res.json(); },
                 async search() { const res = await fetch('/api/search?q='+this.searchQuery); if(res.ok) this.images = await res.json(); },
-                
                 async upload() {
                     const files = this.$refs.fileInput.files;
                     if(!files.length) return alert('请选图');
@@ -192,15 +264,8 @@ const html = (isLoggedIn: boolean) => `
                         fd.append('tags', this.manualTags);
                         try {
                             const res = await fetch('/api/upload', {method:'POST', body:fd});
-                            if(res.ok) {
-                                successCount++;
-                            } else {
-                                failCount++;
-                            }
-                        } catch(e) { 
-                            failCount++;
-                            console.error('上传出错', e); 
-                        }
+                            if(res.ok) successCount++; else failCount++;
+                        } catch(e) { failCount++; }
                     }
 
                     if (failCount > 0) {
@@ -223,7 +288,7 @@ const html = (isLoggedIn: boolean) => `
 </html>
 `;
 
-// ================= 后端逻辑 (保持不变) =================
+// ================= 后端逻辑 =================
 
 const checkAuth = (c: any) => getCookie(c, 'auth_token') === c.env.TEAM_PASSWORD;
 
@@ -241,6 +306,34 @@ app.post('/api/login', async (c) => {
 app.post('/api/logout', (c) => {
   setCookie(c, 'auth_token', '', { maxAge: 0, path: '/' });
   return c.json({ ok: true });
+});
+
+// 🌟 新增：专属背景图片读取接口 (公开访问)
+app.get('/api/settings/bg', async (c) => {
+  const obj = await c.env.BUCKET.get('_site_custom_bg_');
+  if (!obj) return c.notFound();
+  
+  const headers = new Headers();
+  obj.writeHttpMetadata(headers);
+  // 缓存控制，因为我们会带时间戳请求，所以可以设长一点
+  headers.set('Cache-Control', 'public, max-age=86400');
+  
+  return new Response(obj.body, { headers });
+});
+
+// 🌟 新增：专属背景上传接口 (仅管理员)
+app.post('/api/settings/bg', async (c) => {
+  if (!checkAuth(c)) return c.json({ error: 'Unauthorized' }, 401);
+  const fd = await c.req.parseBody();
+  const file = fd['file'];
+  if (!(file instanceof File)) return c.json({ error: 'No file' }, 400);
+
+  // 固定的 key 名字，每次上传都会覆盖旧的壁纸，不占用过多 R2 空间
+  await c.env.BUCKET.put('_site_custom_bg_', file.stream(), { 
+      httpMetadata: { contentType: file.type } 
+  });
+  
+  return c.json({ success: true, url: '/api/settings/bg' });
 });
 
 app.get('/api/tags', async (c) => {
