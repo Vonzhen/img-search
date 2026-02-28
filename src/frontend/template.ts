@@ -13,59 +13,39 @@ export const html = (isLoggedIn: boolean) => `
     <meta name="apple-mobile-web-app-title" content="图库">
     <meta name="theme-color" content="#ffffff">
     
+    <link rel="manifest" href="/manifest.json">
+
     <script>
         (function() {
-            // 1. 创建虚拟画布 (512x512是苹果安卓最完美的标准尺寸)
             var canvas = document.createElement('canvas');
             canvas.width = 512;
             canvas.height = 512;
             var ctx = canvas.getContext('2d');
             
-            // 2. 绘制白色方形背景 (完美复刻“直播吧”的白底风格)
             ctx.fillStyle = '#ffffff';
             ctx.fillRect(0, 0, 512, 512);
             
-            // 3. 绘制中心靛蓝色大圆圈
-            ctx.fillStyle = '#4f46e5';
+            // Infuse 高级渐变色
+            var grd = ctx.createLinearGradient(0, 0, 512, 512);
+            grd.addColorStop(0, "#FF8A00"); // 顶部偏黄橙
+            grd.addColorStop(1, "#E53900"); // 底部偏深赤橙
+            
+            ctx.fillStyle = grd;
             ctx.beginPath();
             ctx.arc(256, 256, 210, 0, Math.PI * 2);
             ctx.fill();
             
-            // 4. 绘制中心白色文字 "图"
             ctx.fillStyle = '#ffffff';
-            ctx.font = 'bold 240px sans-serif';
+            ctx.font = 'bold 200px sans-serif'; 
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            ctx.fillText('图', 256, 276); // 轻微下移以达到视觉绝对居中
+            // Y坐标从 256 下调到 268，修正中文字体基线偏上的问题
+            ctx.fillText('图', 256, 268); 
             
-            // 5. 瞬间输出为原生 PNG 格式数据
-            var iconUrl = canvas.toDataURL('image/png');
-            
-            // 6. 强行喂给 iOS 苹果系统
             var appleLink = document.createElement('link');
             appleLink.rel = 'apple-touch-icon';
-            appleLink.href = iconUrl;
+            appleLink.href = canvas.toDataURL('image/png');
             document.head.appendChild(appleLink);
-            
-            // 7. 强行喂给 Android 系统 (锁定短名为"图库"防换行)
-            var manifest = {
-                name: '幻彩图库',
-                short_name: '图库',
-                display: 'standalone',
-                background_color: '#ffffff',
-                theme_color: '#ffffff',
-                icons: [
-                    {
-                        src: iconUrl,
-                        sizes: '512x512',
-                        type: 'image/png'
-                    }
-                ]
-            };
-            var manifestLink = document.createElement('link');
-            manifestLink.rel = 'manifest';
-            manifestLink.href = 'data:application/manifest+json;charset=utf-8,' + encodeURIComponent(JSON.stringify(manifest));
-            document.head.appendChild(manifestLink);
         })();
     </script>
 
