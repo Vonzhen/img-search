@@ -30,7 +30,6 @@ router.get('/:id', async (c) => {
   return res;
 });
 
-// 删除操作加上了 authMiddleware 保安拦截
 router.delete('/:id', authMiddleware, async (c) => {
   const id = c.req.param('id');
   const file = await c.env.DB.prepare('SELECT r2_key FROM images WHERE id = ?').bind(id).first();
@@ -38,6 +37,9 @@ router.delete('/:id', authMiddleware, async (c) => {
     const r2Key = file.r2_key as string;
     await c.env.BUCKET.delete(r2Key);
     await c.env.BUCKET.delete(r2Key + '_thumb');
+    
+    // 🌟 核心修改：删除时一并清除 FTS5 引擎中的索引记录
+    await c.env.DB.prepare('DELETE FROM images_fts WHERE id = ?').bind(id).run();
     await c.env.DB.prepare('DELETE FROM image_tags WHERE image_id = ?').bind(id).run();
     await c.env.DB.prepare('DELETE FROM images WHERE id = ?').bind(id).run();
   }
