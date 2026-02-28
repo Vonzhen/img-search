@@ -30,24 +30,18 @@ export const html = (isLoggedIn: boolean) => `
     <aside class="fixed inset-y-0 left-0 z-50 w-64 md:w-72 bg-white/85 backdrop-blur-2xl border-r border-white/50 flex flex-col transform transition-transform duration-300 ease-in-out md:relative md:translate-x-0 shadow-2xl md:shadow-none"
            :class="isSidebarOpen ? 'translate-x-0' : '-translate-x-full'">
         
-        <div class="p-5 md:pt-8 flex justify-between items-center">
+        <div class="p-5 md:pt-8 flex justify-between items-center mb-2">
             <h1 class="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 tracking-tight truncate" x-text="galleryName"></h1>
             <button class="md:hidden text-gray-400 hover:text-gray-600 p-1" @click="isSidebarOpen = false">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
             </button>
         </div>
 
-        <div class="px-5 mb-4">
-            <div class="relative group">
-                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><span class="text-gray-400 text-sm">🔍</span></div>
-                <input type="text" x-model="searchQuery" @input.debounce.500ms="executeSearch" placeholder="搜索画面或标签..." class="w-full pl-9 pr-3 py-2.5 bg-white/60 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition-all placeholder-gray-400 shadow-sm hover:bg-white focus:bg-white">
-            </div>
-        </div>
-
-        <div class="px-5 mb-6">
-            <h3 class="text-xs font-bold text-gray-400 mb-2 px-2 uppercase tracking-wider">📅 时光归档</h3>
-            <div class="relative">
-                <input type="date" x-model="searchDate" @change="executeSearch(); if(window.innerWidth < 768) isSidebarOpen = false" class="w-full px-3 py-2 bg-white/60 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-gray-600 shadow-sm hover:bg-white focus:bg-white cursor-pointer">
+        <div class="px-5 mb-6 w-full box-border">
+            <h3 class="text-xs font-bold text-gray-400 mb-2 px-1 uppercase tracking-wider">📅 时光归档</h3>
+            <div class="relative w-full">
+                <input type="date" x-model="searchDate" @change="executeSearch(); if(window.innerWidth < 768) isSidebarOpen = false" 
+                       class="w-full max-w-full px-3 py-2 bg-white/60 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-gray-600 shadow-sm hover:bg-white focus:bg-white cursor-pointer box-border">
                 <button x-show="searchDate" @click="searchDate = ''; executeSearch()" class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-red-500 bg-white/80 rounded-full p-1 transition-colors">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
@@ -87,7 +81,7 @@ export const html = (isLoggedIn: boolean) => `
         </div>
     </aside>
 
-    <main class="flex-1 h-full overflow-y-auto relative scroll-smooth flex flex-col">
+    <main class="flex-1 h-full overflow-y-auto relative scroll-smooth flex flex-col pb-24">
         
         <div class="md:hidden sticky top-0 z-30 bg-white/70 backdrop-blur-xl border-b border-white/50 px-4 py-3 flex justify-between items-center">
             <div class="flex items-center gap-3">
@@ -173,7 +167,7 @@ export const html = (isLoggedIn: boolean) => `
                 </template>
             </div>
             
-            <div x-ref="loadMoreTarget" class="h-10 mt-8 mb-12 flex items-center justify-center">
+            <div x-ref="loadMoreTarget" class="h-10 mt-8 flex items-center justify-center">
                 <template x-if="isLoadingMore">
                     <div class="flex items-center gap-2 text-indigo-600 bg-white/80 px-4 py-2 rounded-full shadow-sm">
                         <svg class="animate-spin h-4 w-4" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
@@ -193,6 +187,28 @@ export const html = (isLoggedIn: boolean) => `
 
         </div>
     </main>
+
+    <div x-show="!isSelectMode" class="fixed bottom-6 md:bottom-10 left-1/2 transform -translate-x-1/2 z-[100] transition-all duration-500 ease-in-out">
+        
+        <button x-show="!isSearchActive" @click="isSearchActive = true; $nextTick(() => $refs.searchInput.focus())" 
+                class="bg-white/80 backdrop-blur-xl border border-white/50 shadow-2xl px-5 py-3 md:px-6 md:py-3.5 rounded-full flex items-center gap-2 md:gap-3 text-gray-700 hover:text-indigo-600 transition-all hover:scale-105 group">
+            <svg class="w-5 h-5 md:w-6 md:h-6 text-gray-500 group-hover:text-indigo-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+            <span class="font-medium text-sm md:text-base whitespace-nowrap">搜 索</span>
+        </button>
+
+        <div x-show="isSearchActive" x-cloak @click.away="isSearchActive = false" 
+             class="bg-white/95 backdrop-blur-2xl border border-white/50 shadow-2xl rounded-full flex items-center w-[85vw] max-w-sm transition-all overflow-hidden">
+            <div class="pl-4 text-indigo-500">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+            </div>
+            <input x-ref="searchInput" type="text" x-model="searchQuery" @input.debounce.500ms="executeSearch" placeholder="输入标签、名称..." 
+                   class="w-full bg-transparent border-none outline-none py-3 md:py-3.5 px-3 text-sm md:text-base text-gray-800 placeholder-gray-400">
+            <button x-show="searchQuery" @click="searchQuery = ''; executeSearch()" class="pr-3 text-gray-400 hover:text-red-500 transition-colors">
+                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+            <button @click="isSearchActive = false" class="pr-5 pl-3 py-3 md:py-3.5 text-gray-600 font-medium text-sm border-l border-gray-200/50 hover:text-gray-900 bg-gray-50/50 transition-colors">取消</button>
+        </div>
+    </div>
 
     <div x-show="isLightboxOpen" x-cloak class="fixed inset-0 z-[200] bg-black/95 backdrop-blur-xl transition-opacity flex flex-col items-center justify-center"
          @keydown.escape.window="closeLightbox"
@@ -225,8 +241,7 @@ export const html = (isLoggedIn: boolean) => `
                     <img :src="'/api/file/' + images[activeImgIndex].id"
                          @click.stop="window.innerWidth >= 768 ? isZoomed = !isZoomed : null"
                          :class="isZoomed ? 'cursor-zoom-out max-w-none max-h-none' : 'max-w-full max-h-[85vh] object-contain rounded-lg'"
-                         class="transition-all duration-200 shadow-2xl m-auto" 
-                         title="电脑端点击缩放，手机端双指捏合">
+                         class="transition-all duration-200 shadow-2xl m-auto">
                 </template>
             </div>
         </template>
@@ -298,7 +313,7 @@ export const html = (isLoggedIn: boolean) => `
         </div>
     </div>
 
-    <div x-show="isSelectMode" x-cloak class="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-gray-900/90 backdrop-blur-xl border border-gray-700 px-4 py-3 md:px-6 md:py-4 rounded-full shadow-2xl z-[100] flex items-center justify-between gap-4 md:gap-6 w-[85%] md:w-auto max-w-md">
+    <div x-show="isSelectMode" x-cloak class="fixed bottom-6 md:bottom-10 left-1/2 transform -translate-x-1/2 bg-gray-900/90 backdrop-blur-xl border border-gray-700 px-4 py-3 md:px-6 md:py-4 rounded-full shadow-2xl z-[100] flex items-center justify-between gap-4 md:gap-6 w-[85%] md:w-auto max-w-md">
         <span class="text-gray-200 font-medium text-sm md:text-base whitespace-nowrap pl-2">已选 <strong class="text-indigo-400 text-lg md:text-xl" x-text="selectedIds.length"></strong> 张</span>
         <div class="h-5 w-px bg-gray-700"></div>
         <button @click="bulkDelete" class="bg-red-500 hover:bg-red-600 text-white px-5 py-2 rounded-full font-medium transition shadow-lg disabled:opacity-50 disabled:cursor-not-allowed text-sm md:text-base whitespace-nowrap" :disabled="selectedIds.length === 0 || isDeletingBatch">
@@ -347,8 +362,10 @@ export const html = (isLoggedIn: boolean) => `
                 
                 touchStartX: 0, touchStartY: 0, searchDate: '', isSidebarOpen: false,
 
-                // 🌟 新增：编辑标签的内部状态
                 isEditTagsOpen: false, editImgId: null, editTagsText: '', isSavingTags: false,
+                
+                // 🌟 新增：控制悬浮搜索条状态
+                isSearchActive: false,
 
                 async init() { 
                     this.executeSearch(); 
@@ -386,14 +403,10 @@ export const html = (isLoggedIn: boolean) => `
                     this.activeImgIndex = (this.activeImgIndex + 1) % this.images.length;
                 },
 
-                // 🌟 痛点4修复：加入 visualViewport 拦截判定，完美让出系统双指缩放权限
                 handleSwipe(touchEndX, touchEndY) {
-                    // 如果原生正在放大，严禁触发我们的图片切换，保证拖拽流畅！
                     if (window.visualViewport && window.visualViewport.scale > 1.05) return;
-
                     const diffX = this.touchStartX - touchEndX;
                     const diffY = this.touchStartY - touchEndY;
-                    
                     if (Math.abs(diffX) > Math.abs(diffY)) {
                         if (diffX > 40) this.nextImg();
                         else if (diffX < -40) this.prevImg();
@@ -402,7 +415,6 @@ export const html = (isLoggedIn: boolean) => `
                     }
                 },
 
-                // 🌟 痛点1修复：编辑标签的核心逻辑
                 openEditTags(img) {
                     this.editImgId = img.id;
                     this.editTagsText = img.tags.join(' ');
@@ -419,15 +431,12 @@ export const html = (isLoggedIn: boolean) => `
                         });
                         if (res.ok) {
                             const data = await res.json();
-                            // 立即刷新前端的图片标签显示
                             const targetImg = this.images.find(img => img.id === this.editImgId);
                             if (targetImg) targetImg.tags = data.tags;
-                            this.fetchHistoryTags(); // 刷新左侧分类
+                            this.fetchHistoryTags();
                             this.isEditTagsOpen = false;
                         } else alert('修改失败');
-                    } catch(e) {
-                        alert('网络错误');
-                    }
+                    } catch(e) { alert('网络错误'); }
                     this.isSavingTags = false;
                 },
 
