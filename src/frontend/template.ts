@@ -5,8 +5,16 @@ export const html = (isLoggedIn: boolean) => `
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>✨ 幻彩图库</title>
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="我的图库">
+    <meta name="theme-color" content="#ffffff">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22%234f46e5%22/><text y=%2250%22 x=%2250%22 fill=%22white%22 font-size=%2250%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22>✨</text></svg>">
+    <link rel="manifest" href='data:application/manifest+json,{"name":"幻彩图库","short_name":"图库","display":"standalone","background_color":"#ffffff","theme_color":"#4f46e5"}'>
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/alpinejs/3.13.5/cdn.min.js" defer></script>
     <style>
@@ -95,7 +103,7 @@ export const html = (isLoggedIn: boolean) => `
             </button>
         </div>
 
-        <div class="p-4 md:p-8 max-w-7xl mx-auto w-full">
+        <div class="p-3 md:p-8 max-w-7xl mx-auto w-full">
             
             <div class="hidden md:flex justify-end mb-4 relative z-10">
                 <button x-show="isLoggedIn" @click="toggleSelectMode" x-cloak class="text-sm font-medium px-4 py-2 rounded-xl transition-all shadow-sm border" :class="isSelectMode ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white/80 text-gray-700 hover:text-indigo-600 hover:bg-white border-white/60'">
@@ -103,37 +111,37 @@ export const html = (isLoggedIn: boolean) => `
                 </button>
             </div>
 
-            <div x-show="isLoggedIn" x-cloak class="bg-white/70 backdrop-blur-xl p-4 md:p-6 rounded-2xl shadow-lg border border-white/50 mb-6 md:mb-8 flex flex-col md:flex-row gap-4 md:gap-6 md:items-end transition-all">
+            <div x-show="isLoggedIn" x-cloak class="bg-white/80 backdrop-blur-xl p-4 md:p-6 rounded-2xl shadow-lg border border-white/50 mb-6 flex flex-col md:flex-row gap-4 md:gap-6 md:items-end transition-all">
                 <div class="flex-1 w-full">
-                    <label class="text-sm font-semibold text-gray-700 mb-2 block"><span>1️⃣</span> 选取文件 (图片/视频可多选)</label>
+                    <label class="text-sm font-semibold text-gray-700 mb-2 block"><span>1️⃣</span> 选取文件</label>
                     <input type="file" x-ref="fileInput" accept="image/*,video/*" multiple class="block w-full text-sm text-gray-600 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-600 hover:file:bg-indigo-100 cursor-pointer transition-colors"/>
                 </div>
                 <div class="flex-1 w-full">
-                    <label class="text-sm font-semibold text-gray-700 mb-2 block"><span>2️⃣</span> 分类标签 (点选或手输，空格分隔)</label>
-                    <input type="text" x-model="manualTags" placeholder="如: 旅行 视频 2026..." class="w-full p-2 bg-white/50 border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm text-sm md:text-base">
+                    <label class="text-sm font-semibold text-gray-700 mb-2 block"><span>2️⃣</span> 分类标签 (空格分隔)</label>
+                    <input type="text" x-model="manualTags" placeholder="如: 旅行 视频 2026..." class="w-full p-2 bg-white/60 border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm text-sm">
                     <div class="mt-2 flex flex-wrap gap-1.5 max-h-16 overflow-y-auto scrollbar-hide">
                         <template x-for="tag in historyTags">
-                            <span @click="manualTags += (manualTags ? ' ' : '') + tag" class="cursor-pointer text-[10px] md:text-xs bg-gray-100 hover:bg-indigo-100 text-gray-600 hover:text-indigo-700 px-2 py-0.5 rounded-full border border-gray-200 transition-colors" x-text="tag"></span>
+                            <span @click="manualTags += (manualTags ? ' ' : '') + tag" class="cursor-pointer text-[10px] bg-gray-100/80 hover:bg-indigo-100 text-gray-600 hover:text-indigo-700 px-2 py-0.5 rounded-full border border-gray-200 transition-colors" x-text="tag"></span>
                         </template>
                     </div>
                 </div>
-                <button @click="upload" class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-2 rounded-lg shadow-md hover:shadow-xl hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium text-sm md:text-base w-full md:w-auto h-[42px]" :disabled="isUploading">
+                <button @click="upload" class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-2 rounded-lg shadow-md hover:shadow-xl hover:-translate-y-0.5 disabled:opacity-50 transition-all font-medium text-sm w-full md:w-auto h-[40px]" :disabled="isUploading">
                     <span x-text="isUploading ? '处理中...' : '极速上传'"></span>
                 </button>
             </div>
 
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-5" id="gallery-grid">
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-1.5 md:gap-4" id="gallery-grid">
                 <template x-for="(img, index) in images" :key="img.id">
                     <div class="bg-white/80 backdrop-blur-md rounded-xl md:rounded-2xl shadow-sm hover:shadow-xl border border-white/50 overflow-hidden group transition-all duration-300 flex flex-col"
-                         :class="{'ring-4 ring-indigo-500 scale-[0.98]': selectedIds.includes(img.id)}">
+                         :class="{'ring-4 ring-indigo-500 scale-[0.98] z-10': selectedIds.includes(img.id)}">
                         
-                        <div class="aspect-square bg-black/5 relative overflow-hidden" 
+                        <div class="aspect-square bg-black/5 relative overflow-hidden flex-1" 
                              @click="isSelectMode ? selectImage(img.id) : openLightbox(index)" 
                              class="cursor-pointer">
                             <div x-show="isSelectMode" class="absolute inset-0 bg-black/20 z-10 transition-opacity" :class="selectedIds.includes(img.id) ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'"></div>
-                            <div x-show="isSelectMode" class="absolute top-2 right-2 md:top-3 md:right-3 z-20 w-5 h-5 md:w-6 md:h-6 rounded-full border-2 flex items-center justify-center transition-all"
+                            <div x-show="isSelectMode" class="absolute top-2 right-2 z-20 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all"
                                  :class="selectedIds.includes(img.id) ? 'bg-indigo-500 border-indigo-500' : 'border-white bg-black/30'">
-                                <svg x-show="selectedIds.includes(img.id)" class="w-3 h-3 md:w-4 md:h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                                <svg x-show="selectedIds.includes(img.id)" class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
                             </div>
 
                             <div class="w-full h-full block">
@@ -149,15 +157,15 @@ export const html = (isLoggedIn: boolean) => `
                             </div>
                         </div>
 
-                        <div class="p-3">
+                        <div x-show="isLoggedIn" class="p-2.5 md:p-3 bg-white/60 border-t border-white/40">
                             <div class="flex flex-wrap gap-1 mb-2 min-h-[20px]">
                                 <template x-for="tag in img.tags">
-                                    <span @click.stop="searchQuery = tag; searchDate = ''; executeSearch()" class="cursor-pointer bg-gradient-to-r from-indigo-50 to-purple-50 hover:from-indigo-100 hover:to-purple-100 border border-indigo-100/50 text-indigo-700 text-[10px] md:text-xs px-1.5 py-0.5 rounded font-medium tracking-wide shadow-sm transition-colors" x-text="tag"></span>
+                                    <span @click.stop="searchQuery = tag; searchDate = ''; executeSearch()" class="cursor-pointer bg-gradient-to-r from-indigo-50 to-purple-50 hover:from-indigo-100 hover:to-purple-100 border border-indigo-100/50 text-indigo-700 text-[10px] px-1.5 py-0.5 rounded tracking-wide shadow-sm transition-colors" x-text="tag"></span>
                                 </template>
                             </div>
-                            <div class="flex justify-between items-center text-[10px] md:text-xs text-gray-400 border-t border-gray-100/80 pt-2">
+                            <div class="flex justify-between items-center text-[10px] text-gray-400 border-t border-gray-200/60 pt-2">
                                 <span class="font-medium" x-text="new Date(img.created_at).toLocaleDateString()"></span>
-                                <div x-show="isLoggedIn && !isSelectMode" class="flex gap-2">
+                                <div x-show="!isSelectMode" class="flex gap-2">
                                     <button @click.stop="openEditTags(img)" class="text-indigo-400 hover:text-indigo-600 transition-colors">编辑</button>
                                     <button @click.stop="deleteImage(img.id, index)" class="text-red-400 hover:text-red-600 transition-colors">删除</button>
                                 </div>
@@ -188,25 +196,24 @@ export const html = (isLoggedIn: boolean) => `
         </div>
     </main>
 
-    <div x-show="!isSelectMode && !isSidebarOpen" x-transition.opacity class="fixed bottom-4 md:bottom-8 left-1/2 transform -translate-x-1/2 z-[90] transition-all duration-500 ease-in-out">
+    <div x-show="!isSelectMode && !isSidebarOpen" x-transition.opacity class="fixed bottom-6 right-5 md:bottom-10 md:right-10 z-[90] flex justify-end">
         
         <button x-show="!isSearchActive" @click="isSearchActive = true; $nextTick(() => $refs.searchInput.focus())" 
-                class="bg-white/80 backdrop-blur-xl border border-white/50 shadow-2xl px-4 py-2.5 md:px-6 md:py-3 rounded-full flex items-center gap-2 text-gray-700 hover:text-indigo-600 transition-all hover:scale-105 group">
-            <svg class="w-4 h-4 md:w-5 md:h-5 text-gray-500 group-hover:text-indigo-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-            <span class="font-medium text-sm md:text-base whitespace-nowrap">搜索</span>
+                class="w-12 h-12 md:w-14 md:h-14 bg-white/40 backdrop-blur-lg border border-white/40 shadow-xl rounded-full flex items-center justify-center text-gray-700 hover:text-indigo-600 transition-all hover:scale-105 active:scale-95">
+            <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
         </button>
 
         <div x-show="isSearchActive" x-cloak @click.away="isSearchActive = false" 
-             class="bg-white/95 backdrop-blur-2xl border border-white/50 shadow-2xl rounded-full flex items-center w-[75vw] max-w-sm transition-all overflow-hidden">
-            <div class="pl-3 md:pl-4 text-indigo-500">
-                <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+             class="bg-white/70 backdrop-blur-2xl border border-white/50 shadow-2xl rounded-full flex items-center w-[85vw] max-w-sm transition-all overflow-hidden h-12 md:h-14 origin-right">
+            <div class="pl-4 text-indigo-500">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
             </div>
-            <input x-ref="searchInput" type="text" x-model="searchQuery" @input.debounce.500ms="executeSearch" placeholder="输入标签、名称..." 
-                   class="w-full bg-transparent border-none outline-none py-2.5 md:py-3.5 px-2 md:px-3 text-sm md:text-base text-gray-800 placeholder-gray-400">
-            <button x-show="searchQuery" @click="searchQuery = ''; executeSearch()" class="pr-2 md:pr-3 text-gray-400 hover:text-red-500 transition-colors">
-                 <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            <input x-ref="searchInput" type="text" x-model="searchQuery" @input.debounce.500ms="executeSearch" placeholder="搜索标签或名称..." 
+                   class="w-full bg-transparent border-none outline-none py-2 px-3 text-sm md:text-base text-gray-800 placeholder-gray-500 font-medium">
+            <button x-show="searchQuery" @click="searchQuery = ''; executeSearch()" class="pr-2 text-gray-400 hover:text-red-500 transition-colors">
+                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
             </button>
-            <button @click="isSearchActive = false" class="pr-4 pl-3 py-2.5 md:py-3.5 text-gray-600 font-medium text-xs md:text-sm border-l border-gray-200/50 hover:text-gray-900 bg-gray-50/50 transition-colors">取消</button>
+            <button @click="isSearchActive = false" class="pr-5 pl-3 h-full text-gray-600 font-bold text-sm border-l border-white/40 hover:bg-white/30 transition-colors">取消</button>
         </div>
     </div>
 
