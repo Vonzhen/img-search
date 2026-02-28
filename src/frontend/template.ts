@@ -16,7 +16,6 @@ export const html = (isLoggedIn: boolean) => `
         ::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.3); }
         [x-cloak] { display: none !important; }
         video::-webkit-media-controls-fullscreen-button { display: none; }
-        /* 侧边栏隐藏滚动条但允许滚动 */
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
@@ -26,7 +25,6 @@ export const html = (isLoggedIn: boolean) => `
       x-data="app()">
     
     <div class="absolute inset-0 bg-black/10 -z-10 pointer-events-none"></div>
-
     <div x-show="isSidebarOpen" x-cloak class="fixed inset-0 bg-black/40 z-40 md:hidden transition-opacity" @click="isSidebarOpen = false"></div>
 
     <aside class="fixed inset-y-0 left-0 z-50 w-64 md:w-72 bg-white/85 backdrop-blur-2xl border-r border-white/50 flex flex-col transform transition-transform duration-300 ease-in-out md:relative md:translate-x-0 shadow-2xl md:shadow-none"
@@ -34,12 +32,12 @@ export const html = (isLoggedIn: boolean) => `
         
         <div class="p-5 md:pt-8 flex justify-between items-center">
             <h1 class="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 tracking-tight truncate" x-text="galleryName"></h1>
-            <button class="md:hidden text-gray-400 hover:text-gray-600 transition-colors p-1" @click="isSidebarOpen = false">
+            <button class="md:hidden text-gray-400 hover:text-gray-600 p-1" @click="isSidebarOpen = false">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
             </button>
         </div>
 
-        <div class="px-5 mb-6">
+        <div class="px-5 mb-4">
             <div class="relative group">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <span class="text-gray-400 group-focus-within:text-indigo-500 transition-colors text-sm">🔍</span>
@@ -48,16 +46,26 @@ export const html = (isLoggedIn: boolean) => `
             </div>
         </div>
 
+        <div class="px-5 mb-6">
+            <h3 class="text-xs font-bold text-gray-400 mb-2 px-2 uppercase tracking-wider">📅 时光归档</h3>
+            <div class="relative">
+                <input type="date" x-model="searchDate" @change="executeSearch(); if(window.innerWidth < 768) isSidebarOpen = false" class="w-full px-3 py-2 bg-white/60 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-gray-600 shadow-sm hover:bg-white focus:bg-white cursor-pointer">
+                <button x-show="searchDate" @click="searchDate = ''; executeSearch()" class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-red-500 bg-white/80 rounded-full p-1 transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+        </div>
+
         <div class="flex-1 overflow-y-auto px-3 pb-4 scrollbar-hide">
             <h3 class="text-xs font-bold text-gray-400 mb-3 px-2 uppercase tracking-wider">画面分类</h3>
             <div class="flex flex-col gap-1">
-                <button @click="searchQuery = ''; executeSearch(); if(window.innerWidth < 768) isSidebarOpen = false"
+                <button @click="searchQuery = ''; searchDate = ''; executeSearch(); if(window.innerWidth < 768) isSidebarOpen = false"
                         class="text-left px-3 py-2 rounded-lg text-sm transition-all duration-200 flex items-center gap-2"
-                        :class="searchQuery === '' ? 'bg-gradient-to-r from-indigo-50 to-purple-50 text-indigo-700 font-semibold shadow-sm border border-indigo-100/50' : 'text-gray-600 hover:bg-white/60 hover:text-gray-900'">
+                        :class="(searchQuery === '' && searchDate === '') ? 'bg-gradient-to-r from-indigo-50 to-purple-50 text-indigo-700 font-semibold shadow-sm border border-indigo-100/50' : 'text-gray-600 hover:bg-white/60 hover:text-gray-900'">
                     <span>🌌</span> 全部照片
                 </button>
                 <template x-for="tag in historyTags">
-                    <button @click="searchQuery = tag; executeSearch(); if(window.innerWidth < 768) isSidebarOpen = false"
+                    <button @click="searchQuery = tag; searchDate = ''; executeSearch(); if(window.innerWidth < 768) isSidebarOpen = false"
                             class="text-left px-3 py-2 rounded-lg text-sm transition-all duration-200 flex items-center gap-2 truncate"
                             :class="searchQuery === tag ? 'bg-gradient-to-r from-indigo-50 to-purple-50 text-indigo-700 font-semibold shadow-sm border border-indigo-100/50' : 'text-gray-600 hover:bg-white/60 hover:text-gray-900'">
                         <span class="text-gray-400 text-xs">#</span>
@@ -73,19 +81,14 @@ export const html = (isLoggedIn: boolean) => `
                     <span>🔐</span> 管理员登录
                 </button>
             </template>
-            
             <template x-if="isLoggedIn">
                 <div class="flex flex-col gap-2">
                     <button @click="toggleSelectMode" class="w-full flex justify-center items-center gap-2 py-2 rounded-xl transition-all text-sm font-medium shadow-sm" :class="isSelectMode ? 'bg-indigo-600 text-white' : 'bg-white/80 hover:bg-white border border-gray-200 text-gray-700 hover:text-indigo-600'">
                         <span x-text="isSelectMode ? '取消选择' : '☑️ 批量管理'"></span>
                     </button>
                     <div class="flex gap-2">
-                        <button @click="showSettings = true" class="flex-1 flex justify-center items-center gap-1 bg-white/80 hover:bg-white border border-gray-200 text-gray-600 py-2 rounded-xl transition-all text-xs font-medium shadow-sm hover:text-indigo-600">
-                            ⚙️ 设置
-                        </button>
-                        <button @click="logout" class="flex-1 flex justify-center items-center gap-1 bg-red-50 hover:bg-red-100 border border-red-100 text-red-500 py-2 rounded-xl transition-all text-xs font-medium shadow-sm">
-                            🚪 退出
-                        </button>
+                        <button @click="showSettings = true" class="flex-1 flex justify-center items-center gap-1 bg-white/80 hover:bg-white border border-gray-200 text-gray-600 py-2 rounded-xl transition-all text-xs font-medium shadow-sm hover:text-indigo-600">⚙️ 设置</button>
+                        <button @click="logout" class="flex-1 flex justify-center items-center gap-1 bg-red-50 hover:bg-red-100 border border-red-100 text-red-500 py-2 rounded-xl transition-all text-xs font-medium shadow-sm">🚪 退出</button>
                     </div>
                 </div>
             </template>
@@ -98,11 +101,10 @@ export const html = (isLoggedIn: boolean) => `
             <button @click="isSidebarOpen = true" class="text-gray-600 hover:text-indigo-600 p-1 bg-white/50 rounded-lg shadow-sm border border-gray-200/50">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
             </button>
-            <h2 class="text-lg font-bold text-gray-800 truncate" x-text="searchQuery ? '#' + searchQuery : galleryName"></h2>
+            <h2 class="text-lg font-bold text-gray-800 truncate" x-text="(searchQuery || searchDate) ? ((searchQuery ? '#' + searchQuery + ' ' : '') + searchDate) : galleryName"></h2>
         </div>
 
         <div class="p-4 md:p-8 max-w-7xl mx-auto w-full">
-            
             <div x-show="isLoggedIn" x-cloak class="bg-white/70 backdrop-blur-xl p-4 md:p-6 rounded-2xl shadow-lg border border-white/50 mb-6 md:mb-8 flex flex-col md:flex-row gap-4 md:gap-6 md:items-end transition-all">
                 <div class="flex-1 w-full">
                     <label class="text-sm font-semibold text-gray-700 mb-2 block flex items-center gap-1"><span>1️⃣</span> 选取文件 (图片/视频可多选)</label>
@@ -125,7 +127,6 @@ export const html = (isLoggedIn: boolean) => `
                         <div class="aspect-square bg-black/5 relative overflow-hidden" 
                              @click="isSelectMode ? selectImage(img.id) : openLightbox(index)" 
                              class="cursor-pointer">
-                            
                             <div x-show="isSelectMode" class="absolute inset-0 bg-black/20 z-10 transition-opacity" :class="selectedIds.includes(img.id) ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'"></div>
                             <div x-show="isSelectMode" class="absolute top-2 right-2 md:top-3 md:right-3 z-20 w-5 h-5 md:w-6 md:h-6 rounded-full border-2 flex items-center justify-center transition-all"
                                  :class="selectedIds.includes(img.id) ? 'bg-indigo-500 border-indigo-500' : 'border-white bg-black/30'">
@@ -176,7 +177,7 @@ export const html = (isLoggedIn: boolean) => `
             <div x-show="images.length === 0 && !isLoadingMore" x-cloak class="text-center py-20 bg-white/50 backdrop-blur-md rounded-3xl border border-white/50 shadow-sm mt-4">
                 <div class="text-5xl md:text-6xl mb-4 opacity-50">🍃</div>
                 <p class="text-gray-500 text-lg font-medium">这里空空如也</p>
-                <button x-show="searchQuery !== ''" @click="searchQuery = ''; executeSearch()" class="mt-4 text-indigo-500 hover:text-indigo-600 text-sm underline underline-offset-4">查看全部照片</button>
+                <button x-show="searchQuery !== '' || searchDate !== ''" @click="searchQuery = ''; searchDate = ''; executeSearch()" class="mt-4 text-indigo-500 hover:text-indigo-600 text-sm underline underline-offset-4">查看全部照片</button>
             </div>
 
         </div>
@@ -202,8 +203,8 @@ export const html = (isLoggedIn: boolean) => `
         <template x-if="activeImgIndex !== null && images[activeImgIndex]">
             <div class="w-full h-full grid place-items-center overflow-auto p-2" 
                  @click.self="closeLightbox"
-                 @touchstart="touchStartX = $event.touches[0].clientX"
-                 @touchend="handleSwipe($event.changedTouches[0].clientX)">
+                 @touchstart="touchStartX = $event.touches[0].clientX; touchStartY = $event.touches[0].clientY"
+                 @touchend="handleSwipe($event.changedTouches[0].clientX, $event.changedTouches[0].clientY)">
                 
                 <template x-if="images[activeImgIndex].filename.match(/\\.(mp4|mov|webm)$/i)">
                     <video :src="'/api/file/' + images[activeImgIndex].id" controls autoplay playsinline class="max-w-full max-h-[85vh] rounded-lg shadow-2xl outline-none"></video>
@@ -211,10 +212,10 @@ export const html = (isLoggedIn: boolean) => `
                 
                 <template x-if="!images[activeImgIndex].filename.match(/\\.(mp4|mov|webm)$/i)">
                     <img :src="'/api/file/' + images[activeImgIndex].id"
-                         @click.stop="isZoomed = !isZoomed"
+                         @click.stop="window.innerWidth >= 768 ? isZoomed = !isZoomed : null"
                          :class="isZoomed ? 'cursor-zoom-out max-w-none max-h-none' : 'cursor-zoom-in max-w-full max-h-[85vh] object-contain rounded-lg'"
                          class="transition-all duration-200 shadow-2xl m-auto" 
-                         title="点击切换放大/缩小">
+                         title="电脑端点击缩放，手机端双指捏合">
                 </template>
             </div>
         </template>
@@ -242,7 +243,6 @@ export const html = (isLoggedIn: boolean) => `
     <div x-show="showSettings" x-cloak class="fixed inset-0 z-[300] flex items-center justify-center bg-black/40 backdrop-blur-sm transition-opacity p-4">
         <div @click.away="showSettings = false" class="bg-white/95 backdrop-blur-xl p-6 md:p-8 rounded-3xl shadow-2xl border border-white/50 w-full max-w-md transform transition-all">
             <h2 class="text-xl font-bold mb-6 text-gray-800 text-center">系统设置</h2>
-            
             <div class="mb-5">
                 <label class="block text-sm font-bold text-gray-700 mb-2">🏷️ 图库名称</label>
                 <div class="flex gap-2">
@@ -250,31 +250,25 @@ export const html = (isLoggedIn: boolean) => `
                     <button @click="saveName" class="bg-indigo-50 text-indigo-700 px-4 py-2.5 rounded-xl text-sm hover:bg-indigo-100 transition font-medium border border-indigo-200">应用</button>
                 </div>
             </div>
-            
             <hr class="border-gray-200 mb-5">
-            
             <div>
                 <label class="block text-sm font-bold text-gray-700 mb-3">🎨 背景壁纸设置</label>
                 <div class="flex gap-2 mb-3 bg-gray-100 p-1 rounded-lg">
                     <button @click="bgMode = 'url'" :class="bgMode === 'url' ? 'bg-white text-indigo-600 shadow' : 'text-gray-500'" class="flex-1 py-1.5 rounded-md text-sm font-medium transition">网络链接</button>
                     <button @click="bgMode = 'upload'" :class="bgMode === 'upload' ? 'bg-white text-indigo-600 shadow' : 'text-gray-500'" class="flex-1 py-1.5 rounded-md text-sm font-medium transition">本地上传</button>
                 </div>
-                
                 <div x-show="bgMode === 'url'" class="flex flex-col gap-3">
                     <input type="text" x-model="tempBgUrl" placeholder="输入图片 URL..." class="w-full p-2.5 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 bg-white/50 text-sm">
                     <button @click="saveBgUrl" class="w-full bg-gradient-to-r from-indigo-500 to-purple-500 text-white py-2.5 rounded-xl text-sm shadow hover:shadow-lg transition font-medium">保存链接壁纸</button>
                 </div>
-                
                 <div x-show="bgMode === 'upload'" class="flex flex-col gap-3">
                     <input type="file" x-ref="bgFileInput" accept="image/*" class="w-full text-sm text-gray-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-indigo-50 file:text-indigo-700 cursor-pointer border border-gray-200 rounded-xl p-1 bg-white/50">
                     <button @click="uploadBg" :disabled="isUploadingBg" class="w-full bg-gradient-to-r from-indigo-500 to-purple-500 text-white py-2.5 rounded-xl text-sm shadow hover:shadow-lg transition font-medium disabled:opacity-50">
                         <span x-text="isUploadingBg ? '上传中...' : '上传并设为壁纸'"></span>
                     </button>
                 </div>
-                
                 <button @click="resetBg" class="w-full mt-4 bg-gray-100 text-gray-500 py-2.5 rounded-xl text-sm hover:bg-gray-200 hover:text-gray-700 transition font-medium">恢复默认壁纸</button>
             </div>
-            
             <button @click="showSettings = false" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
         </div>
     </div>
@@ -324,9 +318,11 @@ export const html = (isLoggedIn: boolean) => `
                 isSelectMode: false, selectedIds: [], isDeletingBatch: false,
                 
                 page: 1, hasMore: true, isLoadingMore: false,
-                isLightboxOpen: false, activeImgIndex: null, isZoomed: false, touchStartX: 0,
+                isLightboxOpen: false, activeImgIndex: null, isZoomed: false, 
                 
-                // 🌟 新增：侧边栏状态控制
+                // 🌟 新增触摸与搜索参数
+                touchStartX: 0, touchStartY: 0,
+                searchDate: '', 
                 isSidebarOpen: false,
 
                 async init() { 
@@ -335,7 +331,9 @@ export const html = (isLoggedIn: boolean) => `
                     this.tempName = this.galleryName;
                     document.title = this.galleryName;
                     this.$watch('galleryName', value => { document.title = value; });
-                    if(this.isLoggedIn) this.fetchHistoryTags(); 
+                    
+                    // 🌟 修复：无论是否登录，都去拉取公开的历史标签
+                    this.fetchHistoryTags(); 
 
                     const observer = new IntersectionObserver((entries) => {
                         if(entries[0].isIntersecting && this.hasMore && !this.isLoadingMore && this.images.length > 0) {
@@ -364,16 +362,26 @@ export const html = (isLoggedIn: boolean) => `
                     this.isZoomed = false;
                     this.activeImgIndex = (this.activeImgIndex + 1) % this.images.length;
                 },
-                handleSwipe(touchEndX) {
-                    const diff = this.touchStartX - touchEndX;
-                    if (diff > 50) this.nextImg();
-                    else if (diff < -50) this.prevImg();
+                // 🌟 苹果原生手势：滑动方向判定
+                handleSwipe(touchEndX, touchEndY) {
+                    const diffX = this.touchStartX - touchEndX;
+                    const diffY = this.touchStartY - touchEndY;
+                    
+                    if (Math.abs(diffX) > Math.abs(diffY)) {
+                        // 横向滑动切换照片
+                        if (diffX > 40) this.nextImg();
+                        else if (diffX < -40) this.prevImg();
+                    } else {
+                        // 纵向滑动 (手往下滑动超过 60 像素，瞬间关闭照片)
+                        if (diffY < -60) this.closeLightbox();
+                    }
                 },
 
+                // 🌟 搜索携带 Date 参数
                 async executeSearch() {
                     this.page = 1;
                     this.hasMore = true;
-                    const res = await fetch(\`/api/search?q=\${this.searchQuery}&page=\${this.page}\`);
+                    const res = await fetch(\`/api/search?q=\${this.searchQuery}&date=\${this.searchDate}&page=\${this.page}\`);
                     if(res.ok) {
                         const data = await res.json();
                         this.images = data;
@@ -383,7 +391,7 @@ export const html = (isLoggedIn: boolean) => `
                 async loadMore() {
                     this.isLoadingMore = true;
                     this.page++;
-                    const res = await fetch(\`/api/search?q=\${this.searchQuery}&page=\${this.page}\`);
+                    const res = await fetch(\`/api/search?q=\${this.searchQuery}&date=\${this.searchDate}&page=\${this.page}\`);
                     if(res.ok) {
                         const data = await res.json();
                         this.images = [...this.images, ...data];
