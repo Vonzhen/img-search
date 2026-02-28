@@ -12,8 +12,62 @@ export const html = (isLoggedIn: boolean) => `
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="图库">
     <meta name="theme-color" content="#ffffff">
-    <link rel="apple-touch-icon" href="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/2728.png">
-    <link rel="manifest" href='data:application/manifest+json,{"name":"幻彩图库","short_name":"图库","display":"standalone","background_color":"#ffffff","theme_color":"#4f46e5","icons":[{"src":"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/2728.png","sizes":"72x72","type":"image/png"}]}'>
+    
+    <script>
+        (function() {
+            // 1. 创建虚拟画布 (512x512是苹果安卓最完美的标准尺寸)
+            var canvas = document.createElement('canvas');
+            canvas.width = 512;
+            canvas.height = 512;
+            var ctx = canvas.getContext('2d');
+            
+            // 2. 绘制白色方形背景 (完美复刻“直播吧”的白底风格)
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, 512, 512);
+            
+            // 3. 绘制中心靛蓝色大圆圈
+            ctx.fillStyle = '#4f46e5';
+            ctx.beginPath();
+            ctx.arc(256, 256, 210, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // 4. 绘制中心白色文字 "图"
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 240px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('图', 256, 276); // 轻微下移以达到视觉绝对居中
+            
+            // 5. 瞬间输出为原生 PNG 格式数据
+            var iconUrl = canvas.toDataURL('image/png');
+            
+            // 6. 强行喂给 iOS 苹果系统
+            var appleLink = document.createElement('link');
+            appleLink.rel = 'apple-touch-icon';
+            appleLink.href = iconUrl;
+            document.head.appendChild(appleLink);
+            
+            // 7. 强行喂给 Android 系统 (锁定短名为"图库"防换行)
+            var manifest = {
+                name: '幻彩图库',
+                short_name: '图库',
+                display: 'standalone',
+                background_color: '#ffffff',
+                theme_color: '#ffffff',
+                icons: [
+                    {
+                        src: iconUrl,
+                        sizes: '512x512',
+                        type: 'image/png'
+                    }
+                ]
+            };
+            var manifestLink = document.createElement('link');
+            manifestLink.rel = 'manifest';
+            manifestLink.href = 'data:application/manifest+json;charset=utf-8,' + encodeURIComponent(JSON.stringify(manifest));
+            document.head.appendChild(manifestLink);
+        })();
+    </script>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/alpinejs/3.13.5/cdn.min.js" defer></script>
@@ -409,7 +463,6 @@ export const html = (isLoggedIn: boolean) => `
                 },
 
                 handleSwipe(touchEndX, touchEndY) {
-                    // 🌟 修复：只要图片是放大状态（电脑端）或者原生系统放大了，统统禁止触发滑动切换！
                     if (this.isZoomed || (window.visualViewport && window.visualViewport.scale > 1.05)) return;
 
                     const diffX = this.touchStartX - touchEndX;
