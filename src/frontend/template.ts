@@ -5,15 +5,15 @@ export const html = (isLoggedIn: boolean) => `
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>✨ 幻彩图库</title>
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="我的图库">
+    <meta name="apple-mobile-web-app-title" content="图库">
     <meta name="theme-color" content="#ffffff">
-    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22%234f46e5%22/><text y=%2250%22 x=%2250%22 fill=%22white%22 font-size=%2250%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22>✨</text></svg>">
-    <link rel="manifest" href='data:application/manifest+json,{"name":"幻彩图库","short_name":"图库","display":"standalone","background_color":"#ffffff","theme_color":"#4f46e5"}'>
+    <link rel="apple-touch-icon" href="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/2728.png">
+    <link rel="manifest" href='data:application/manifest+json,{"name":"幻彩图库","short_name":"图库","display":"standalone","background_color":"#ffffff","theme_color":"#4f46e5","icons":[{"src":"https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/2728.png","sizes":"72x72","type":"image/png"}]}'>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/alpinejs/3.13.5/cdn.min.js" defer></script>
@@ -197,7 +197,6 @@ export const html = (isLoggedIn: boolean) => `
     </main>
 
     <div x-show="!isSelectMode && !isSidebarOpen" x-transition.opacity class="fixed bottom-6 right-5 md:bottom-10 md:right-10 z-[90] flex justify-end">
-        
         <button x-show="!isSearchActive" @click="isSearchActive = true; $nextTick(() => $refs.searchInput.focus())" 
                 class="w-12 h-12 md:w-14 md:h-14 bg-white/40 backdrop-blur-lg border border-white/40 shadow-xl rounded-full flex items-center justify-center text-gray-700 hover:text-indigo-600 transition-all hover:scale-105 active:scale-95">
             <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
@@ -246,7 +245,7 @@ export const html = (isLoggedIn: boolean) => `
                 
                 <template x-if="!images[activeImgIndex].filename.match(/\\.(mp4|mov|webm)$/i)">
                     <img :src="'/api/file/' + images[activeImgIndex].id"
-                         @click.stop="window.innerWidth >= 768 ? isZoomed = !isZoomed : null"
+                         @click.stop="if(window.innerWidth >= 768) isZoomed = !isZoomed"
                          :class="isZoomed ? 'cursor-zoom-out max-w-none max-h-none' : 'max-w-full max-h-[85vh] object-contain rounded-lg'"
                          class="transition-all duration-200 shadow-2xl m-auto">
                 </template>
@@ -410,7 +409,9 @@ export const html = (isLoggedIn: boolean) => `
                 },
 
                 handleSwipe(touchEndX, touchEndY) {
-                    if (window.visualViewport && window.visualViewport.scale > 1.05) return;
+                    // 🌟 修复：只要图片是放大状态（电脑端）或者原生系统放大了，统统禁止触发滑动切换！
+                    if (this.isZoomed || (window.visualViewport && window.visualViewport.scale > 1.05)) return;
+
                     const diffX = this.touchStartX - touchEndX;
                     const diffY = this.touchStartY - touchEndY;
                     if (Math.abs(diffX) > Math.abs(diffY)) {
