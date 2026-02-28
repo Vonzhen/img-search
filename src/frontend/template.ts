@@ -30,25 +30,25 @@ export const html = (isLoggedIn: boolean) => `
     <aside class="fixed inset-y-0 left-0 z-50 w-64 md:w-72 bg-white/85 backdrop-blur-2xl border-r border-white/50 flex flex-col transform transition-transform duration-300 ease-in-out md:relative md:translate-x-0 shadow-2xl md:shadow-none"
            :class="isSidebarOpen ? 'translate-x-0' : '-translate-x-full'">
         
-        <div class="p-5 md:pt-8 flex justify-between items-center mb-2">
+        <div class="p-4 md:p-5 md:pt-8 flex justify-between items-center mb-2">
             <h1 class="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 tracking-tight truncate" x-text="galleryName"></h1>
             <button class="md:hidden text-gray-400 hover:text-gray-600 p-1" @click="isSidebarOpen = false">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
             </button>
         </div>
 
-        <div class="px-5 mb-6 w-full box-border">
+        <div class="px-3 md:px-5 mb-6 w-full box-border">
             <h3 class="text-xs font-bold text-gray-400 mb-2 px-1 uppercase tracking-wider">📅 时光归档</h3>
-            <div class="relative w-full">
+            <div class="relative w-full overflow-hidden rounded-xl">
                 <input type="date" x-model="searchDate" @change="executeSearch(); if(window.innerWidth < 768) isSidebarOpen = false" 
-                       class="w-full max-w-full px-3 py-2 bg-white/60 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-gray-600 shadow-sm hover:bg-white focus:bg-white cursor-pointer box-border">
-                <button x-show="searchDate" @click="searchDate = ''; executeSearch()" class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-red-500 bg-white/80 rounded-full p-1 transition-colors">
+                       class="block w-full px-2 py-2 bg-white/60 border border-gray-200 rounded-xl text-xs md:text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-gray-600 shadow-sm hover:bg-white focus:bg-white cursor-pointer box-border">
+                <button x-show="searchDate" @click="searchDate = ''; executeSearch()" class="absolute right-1 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-red-500 bg-white/80 rounded-full p-1 transition-colors">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
             </div>
         </div>
 
-        <div class="flex-1 overflow-y-auto px-4 pb-4 scrollbar-hide">
+        <div class="flex-1 overflow-y-auto px-3 md:px-4 pb-4 scrollbar-hide">
             <h3 class="text-xs font-bold text-gray-400 mb-3 px-1 uppercase tracking-wider">🏷️ 画面分类</h3>
             <div class="flex flex-wrap gap-2">
                 <button @click="searchQuery = ''; searchDate = ''; executeSearch(); if(window.innerWidth < 768) isSidebarOpen = false"
@@ -66,9 +66,9 @@ export const html = (isLoggedIn: boolean) => `
             </div>
         </div>
 
-        <div class="p-4 border-t border-gray-100/50 bg-white/40">
+        <div class="p-3 md:p-4 border-t border-gray-100/50 bg-white/40">
             <template x-if="!isLoggedIn">
-                <button @click="showLoginModal = true" class="w-full flex justify-center items-center gap-2 bg-white/80 hover:bg-indigo-50 border border-gray-200 text-indigo-600 py-2.5 rounded-xl transition-all text-sm font-medium shadow-sm">
+                <button @click="showLoginModal = true" class="w-full flex justify-center items-center gap-2 bg-white/80 hover:bg-indigo-50 border border-gray-200 text-indigo-600 py-2 md:py-2.5 rounded-xl transition-all text-sm font-medium shadow-sm">
                     <span>🔐</span> 管理员登录
                 </button>
             </template>
@@ -188,25 +188,25 @@ export const html = (isLoggedIn: boolean) => `
         </div>
     </main>
 
-    <div x-show="!isSelectMode" class="fixed bottom-6 md:bottom-10 left-1/2 transform -translate-x-1/2 z-[100] transition-all duration-500 ease-in-out">
+    <div x-show="!isSelectMode && !isSidebarOpen" x-transition.opacity class="fixed bottom-4 md:bottom-8 left-1/2 transform -translate-x-1/2 z-[90] transition-all duration-500 ease-in-out">
         
         <button x-show="!isSearchActive" @click="isSearchActive = true; $nextTick(() => $refs.searchInput.focus())" 
-                class="bg-white/80 backdrop-blur-xl border border-white/50 shadow-2xl px-5 py-3 md:px-6 md:py-3.5 rounded-full flex items-center gap-2 md:gap-3 text-gray-700 hover:text-indigo-600 transition-all hover:scale-105 group">
-            <svg class="w-5 h-5 md:w-6 md:h-6 text-gray-500 group-hover:text-indigo-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-            <span class="font-medium text-sm md:text-base whitespace-nowrap">搜 索</span>
+                class="bg-white/80 backdrop-blur-xl border border-white/50 shadow-2xl px-4 py-2.5 md:px-6 md:py-3 rounded-full flex items-center gap-2 text-gray-700 hover:text-indigo-600 transition-all hover:scale-105 group">
+            <svg class="w-4 h-4 md:w-5 md:h-5 text-gray-500 group-hover:text-indigo-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+            <span class="font-medium text-sm md:text-base whitespace-nowrap">搜索</span>
         </button>
 
         <div x-show="isSearchActive" x-cloak @click.away="isSearchActive = false" 
-             class="bg-white/95 backdrop-blur-2xl border border-white/50 shadow-2xl rounded-full flex items-center w-[85vw] max-w-sm transition-all overflow-hidden">
-            <div class="pl-4 text-indigo-500">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+             class="bg-white/95 backdrop-blur-2xl border border-white/50 shadow-2xl rounded-full flex items-center w-[75vw] max-w-sm transition-all overflow-hidden">
+            <div class="pl-3 md:pl-4 text-indigo-500">
+                <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
             </div>
             <input x-ref="searchInput" type="text" x-model="searchQuery" @input.debounce.500ms="executeSearch" placeholder="输入标签、名称..." 
-                   class="w-full bg-transparent border-none outline-none py-3 md:py-3.5 px-3 text-sm md:text-base text-gray-800 placeholder-gray-400">
-            <button x-show="searchQuery" @click="searchQuery = ''; executeSearch()" class="pr-3 text-gray-400 hover:text-red-500 transition-colors">
-                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                   class="w-full bg-transparent border-none outline-none py-2.5 md:py-3.5 px-2 md:px-3 text-sm md:text-base text-gray-800 placeholder-gray-400">
+            <button x-show="searchQuery" @click="searchQuery = ''; executeSearch()" class="pr-2 md:pr-3 text-gray-400 hover:text-red-500 transition-colors">
+                 <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
             </button>
-            <button @click="isSearchActive = false" class="pr-5 pl-3 py-3 md:py-3.5 text-gray-600 font-medium text-sm border-l border-gray-200/50 hover:text-gray-900 bg-gray-50/50 transition-colors">取消</button>
+            <button @click="isSearchActive = false" class="pr-4 pl-3 py-2.5 md:py-3.5 text-gray-600 font-medium text-xs md:text-sm border-l border-gray-200/50 hover:text-gray-900 bg-gray-50/50 transition-colors">取消</button>
         </div>
     </div>
 
@@ -364,7 +364,6 @@ export const html = (isLoggedIn: boolean) => `
 
                 isEditTagsOpen: false, editImgId: null, editTagsText: '', isSavingTags: false,
                 
-                // 🌟 新增：控制悬浮搜索条状态
                 isSearchActive: false,
 
                 async init() { 
