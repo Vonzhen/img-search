@@ -39,9 +39,7 @@ export const html = (isLoggedIn: boolean) => `
 
         <div class="px-5 mb-4">
             <div class="relative group">
-                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <span class="text-gray-400 group-focus-within:text-indigo-500 transition-colors text-sm">🔍</span>
-                </div>
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><span class="text-gray-400 text-sm">🔍</span></div>
                 <input type="text" x-model="searchQuery" @input.debounce.500ms="executeSearch" placeholder="搜索画面或标签..." class="w-full pl-9 pr-3 py-2.5 bg-white/60 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition-all placeholder-gray-400 shadow-sm hover:bg-white focus:bg-white">
             </div>
         </div>
@@ -56,20 +54,19 @@ export const html = (isLoggedIn: boolean) => `
             </div>
         </div>
 
-        <div class="flex-1 overflow-y-auto px-3 pb-4 scrollbar-hide">
-            <h3 class="text-xs font-bold text-gray-400 mb-3 px-2 uppercase tracking-wider">画面分类</h3>
-            <div class="flex flex-col gap-1">
+        <div class="flex-1 overflow-y-auto px-4 pb-4 scrollbar-hide">
+            <h3 class="text-xs font-bold text-gray-400 mb-3 px-1 uppercase tracking-wider">🏷️ 画面分类</h3>
+            <div class="flex flex-wrap gap-2">
                 <button @click="searchQuery = ''; searchDate = ''; executeSearch(); if(window.innerWidth < 768) isSidebarOpen = false"
-                        class="text-left px-3 py-2 rounded-lg text-sm transition-all duration-200 flex items-center gap-2"
-                        :class="(searchQuery === '' && searchDate === '') ? 'bg-gradient-to-r from-indigo-50 to-purple-50 text-indigo-700 font-semibold shadow-sm border border-indigo-100/50' : 'text-gray-600 hover:bg-white/60 hover:text-gray-900'">
-                    <span>🌌</span> 全部照片
+                        class="px-3 py-1.5 rounded-full text-xs transition-all duration-200 font-medium"
+                        :class="(searchQuery === '' && searchDate === '') ? 'bg-indigo-500 text-white shadow-md' : 'bg-white/60 text-gray-600 hover:bg-white border border-gray-200'">
+                    全部照片
                 </button>
                 <template x-for="tag in historyTags">
                     <button @click="searchQuery = tag; searchDate = ''; executeSearch(); if(window.innerWidth < 768) isSidebarOpen = false"
-                            class="text-left px-3 py-2 rounded-lg text-sm transition-all duration-200 flex items-center gap-2 truncate"
-                            :class="searchQuery === tag ? 'bg-gradient-to-r from-indigo-50 to-purple-50 text-indigo-700 font-semibold shadow-sm border border-indigo-100/50' : 'text-gray-600 hover:bg-white/60 hover:text-gray-900'">
-                        <span class="text-gray-400 text-xs">#</span>
-                        <span x-text="tag" class="truncate"></span>
+                            class="px-3 py-1.5 rounded-full text-xs transition-all duration-200 font-medium truncate max-w-full"
+                            :class="searchQuery === tag ? 'bg-indigo-500 text-white shadow-md' : 'bg-white/60 text-gray-600 hover:bg-white border border-gray-200'">
+                        <span x-text="tag"></span>
                     </button>
                 </template>
             </div>
@@ -82,14 +79,9 @@ export const html = (isLoggedIn: boolean) => `
                 </button>
             </template>
             <template x-if="isLoggedIn">
-                <div class="flex flex-col gap-2">
-                    <button @click="toggleSelectMode" class="w-full flex justify-center items-center gap-2 py-2 rounded-xl transition-all text-sm font-medium shadow-sm" :class="isSelectMode ? 'bg-indigo-600 text-white' : 'bg-white/80 hover:bg-white border border-gray-200 text-gray-700 hover:text-indigo-600'">
-                        <span x-text="isSelectMode ? '取消选择' : '☑️ 批量管理'"></span>
-                    </button>
-                    <div class="flex gap-2">
-                        <button @click="showSettings = true" class="flex-1 flex justify-center items-center gap-1 bg-white/80 hover:bg-white border border-gray-200 text-gray-600 py-2 rounded-xl transition-all text-xs font-medium shadow-sm hover:text-indigo-600">⚙️ 设置</button>
-                        <button @click="logout" class="flex-1 flex justify-center items-center gap-1 bg-red-50 hover:bg-red-100 border border-red-100 text-red-500 py-2 rounded-xl transition-all text-xs font-medium shadow-sm">🚪 退出</button>
-                    </div>
+                <div class="flex gap-2">
+                    <button @click="showSettings = true" class="flex-1 flex justify-center items-center gap-1 bg-white/80 hover:bg-white border border-gray-200 text-gray-600 py-2 rounded-xl transition-all text-xs font-medium shadow-sm hover:text-indigo-600">⚙️ 设置</button>
+                    <button @click="logout" class="flex-1 flex justify-center items-center gap-1 bg-red-50 hover:bg-red-100 border border-red-100 text-red-500 py-2 rounded-xl transition-all text-xs font-medium shadow-sm">🚪 退出</button>
                 </div>
             </template>
         </div>
@@ -97,24 +89,41 @@ export const html = (isLoggedIn: boolean) => `
 
     <main class="flex-1 h-full overflow-y-auto relative scroll-smooth flex flex-col">
         
-        <div class="md:hidden sticky top-0 z-30 bg-white/70 backdrop-blur-xl border-b border-white/50 px-4 py-3 flex items-center gap-3">
-            <button @click="isSidebarOpen = true" class="text-gray-600 hover:text-indigo-600 p-1 bg-white/50 rounded-lg shadow-sm border border-gray-200/50">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+        <div class="md:hidden sticky top-0 z-30 bg-white/70 backdrop-blur-xl border-b border-white/50 px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <button @click="isSidebarOpen = true" class="text-gray-600 hover:text-indigo-600 p-1 bg-white/50 rounded-lg shadow-sm border border-gray-200/50">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                </button>
+                <h2 class="text-lg font-bold text-gray-800 truncate" x-text="(searchQuery || searchDate) ? ((searchQuery ? '#' + searchQuery + ' ' : '') + searchDate) : galleryName"></h2>
+            </div>
+            <button x-show="isLoggedIn" @click="toggleSelectMode" x-cloak class="text-sm font-medium px-3 py-1.5 rounded-lg transition-colors" :class="isSelectMode ? 'bg-indigo-600 text-white' : 'bg-white/80 text-gray-700 border border-gray-200'">
+                <span x-text="isSelectMode ? '取消' : '☑️ 管理'"></span>
             </button>
-            <h2 class="text-lg font-bold text-gray-800 truncate" x-text="(searchQuery || searchDate) ? ((searchQuery ? '#' + searchQuery + ' ' : '') + searchDate) : galleryName"></h2>
         </div>
 
         <div class="p-4 md:p-8 max-w-7xl mx-auto w-full">
+            
+            <div class="hidden md:flex justify-end mb-4 relative z-10">
+                <button x-show="isLoggedIn" @click="toggleSelectMode" x-cloak class="text-sm font-medium px-4 py-2 rounded-xl transition-all shadow-sm border" :class="isSelectMode ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white/80 text-gray-700 hover:text-indigo-600 hover:bg-white border-white/60'">
+                    <span x-text="isSelectMode ? '取消选择模式' : '☑️ 批量管理照片'"></span>
+                </button>
+            </div>
+
             <div x-show="isLoggedIn" x-cloak class="bg-white/70 backdrop-blur-xl p-4 md:p-6 rounded-2xl shadow-lg border border-white/50 mb-6 md:mb-8 flex flex-col md:flex-row gap-4 md:gap-6 md:items-end transition-all">
                 <div class="flex-1 w-full">
-                    <label class="text-sm font-semibold text-gray-700 mb-2 block flex items-center gap-1"><span>1️⃣</span> 选取文件 (图片/视频可多选)</label>
+                    <label class="text-sm font-semibold text-gray-700 mb-2 block"><span>1️⃣</span> 选取文件 (图片/视频可多选)</label>
                     <input type="file" x-ref="fileInput" accept="image/*,video/*" multiple class="block w-full text-sm text-gray-600 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-600 hover:file:bg-indigo-100 cursor-pointer transition-colors"/>
                 </div>
                 <div class="flex-1 w-full">
-                    <label class="text-sm font-semibold text-gray-700 mb-2 block flex items-center gap-1"><span>2️⃣</span> 标记属性 (支持联想)</label>
-                    <input type="text" x-model="manualTags" list="history-tags" placeholder="如: 旅行 视频 2026..." class="w-full p-2 bg-white/50 border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm transition-all text-sm md:text-base">
+                    <label class="text-sm font-semibold text-gray-700 mb-2 block"><span>2️⃣</span> 分类标签 (点选或手输，空格分隔)</label>
+                    <input type="text" x-model="manualTags" placeholder="如: 旅行 视频 2026..." class="w-full p-2 bg-white/50 border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm text-sm md:text-base">
+                    <div class="mt-2 flex flex-wrap gap-1.5 max-h-16 overflow-y-auto scrollbar-hide">
+                        <template x-for="tag in historyTags">
+                            <span @click="manualTags += (manualTags ? ' ' : '') + tag" class="cursor-pointer text-[10px] md:text-xs bg-gray-100 hover:bg-indigo-100 text-gray-600 hover:text-indigo-700 px-2 py-0.5 rounded-full border border-gray-200 transition-colors" x-text="tag"></span>
+                        </template>
+                    </div>
                 </div>
-                <button @click="upload" class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-2 rounded-lg shadow-md hover:shadow-xl hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium text-sm md:text-base w-full md:w-auto" :disabled="isUploading">
+                <button @click="upload" class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-2 rounded-lg shadow-md hover:shadow-xl hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium text-sm md:text-base w-full md:w-auto h-[42px]" :disabled="isUploading">
                     <span x-text="isUploading ? '处理中...' : '极速上传'"></span>
                 </button>
             </div>
@@ -141,7 +150,6 @@ export const html = (isLoggedIn: boolean) => `
                                     <img :src="'/api/file/' + img.id + '?thumb=true'" class="object-cover w-full h-full transition-transform duration-500" :class="isSelectMode ? '' : 'group-hover:scale-110'" loading="lazy">
                                 </template>
                             </div>
-                            
                             <div x-show="img.filename.match(/\\.(mp4|mov|webm)$/i)" class="absolute bottom-2 right-2 bg-black/50 backdrop-blur text-white p-1 rounded-md">
                                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z"></path></svg>
                             </div>
@@ -150,12 +158,15 @@ export const html = (isLoggedIn: boolean) => `
                         <div class="p-3">
                             <div class="flex flex-wrap gap-1 mb-2 min-h-[20px]">
                                 <template x-for="tag in img.tags">
-                                    <span @click.stop="searchQuery = tag; executeSearch()" class="cursor-pointer bg-gradient-to-r from-indigo-50 to-purple-50 hover:from-indigo-100 hover:to-purple-100 border border-indigo-100/50 text-indigo-700 text-[10px] md:text-xs px-1.5 py-0.5 rounded font-medium tracking-wide shadow-sm transition-colors" x-text="tag"></span>
+                                    <span @click.stop="searchQuery = tag; searchDate = ''; executeSearch()" class="cursor-pointer bg-gradient-to-r from-indigo-50 to-purple-50 hover:from-indigo-100 hover:to-purple-100 border border-indigo-100/50 text-indigo-700 text-[10px] md:text-xs px-1.5 py-0.5 rounded font-medium tracking-wide shadow-sm transition-colors" x-text="tag"></span>
                                 </template>
                             </div>
                             <div class="flex justify-between items-center text-[10px] md:text-xs text-gray-400 border-t border-gray-100/80 pt-2">
                                 <span class="font-medium" x-text="new Date(img.created_at).toLocaleDateString()"></span>
-                                <button x-show="isLoggedIn && !isSelectMode" @click="deleteImage(img.id, index)" class="text-red-400 hover:text-white hover:bg-red-500 px-2 py-0.5 rounded transition-colors">删除</button>
+                                <div x-show="isLoggedIn && !isSelectMode" class="flex gap-2">
+                                    <button @click.stop="openEditTags(img)" class="text-indigo-400 hover:text-indigo-600 transition-colors">编辑</button>
+                                    <button @click.stop="deleteImage(img.id, index)" class="text-red-400 hover:text-red-600 transition-colors">删除</button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -188,16 +199,16 @@ export const html = (isLoggedIn: boolean) => `
          @keydown.left.window="prevImg"
          @keydown.right.window="nextImg">
         
-        <button @click="closeLightbox" class="absolute top-4 right-4 md:top-6 md:right-6 text-white/50 hover:text-white bg-white/10 hover:bg-white/20 p-2 md:p-3 rounded-full transition-all z-50">
-            <svg class="w-6 h-6 md:w-8 md:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        <button @click="closeLightbox" class="absolute top-4 right-4 md:top-5 md:right-5 text-white/50 hover:text-white bg-white/10 hover:bg-white/20 p-1.5 md:p-2 rounded-full transition-all z-50">
+            <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
         </button>
 
-        <button x-show="images.length > 1" @click.stop="prevImg" class="hidden md:flex absolute left-6 top-1/2 transform -translate-y-1/2 text-white/50 hover:text-white bg-white/10 hover:bg-white/20 p-4 rounded-full transition-all z-50">
-            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+        <button x-show="images.length > 1" @click.stop="prevImg" class="hidden md:flex absolute left-4 top-1/2 transform -translate-y-1/2 text-white/50 hover:text-white bg-white/10 hover:bg-white/20 p-2 md:p-3 rounded-full transition-all z-50">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
         </button>
 
-        <button x-show="images.length > 1" @click.stop="nextImg" class="hidden md:flex absolute right-6 top-1/2 transform -translate-y-1/2 text-white/50 hover:text-white bg-white/10 hover:bg-white/20 p-4 rounded-full transition-all z-50">
-            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+        <button x-show="images.length > 1" @click.stop="nextImg" class="hidden md:flex absolute right-4 top-1/2 transform -translate-y-1/2 text-white/50 hover:text-white bg-white/10 hover:bg-white/20 p-2 md:p-3 rounded-full transition-all z-50">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
         </button>
 
         <template x-if="activeImgIndex !== null && images[activeImgIndex]">
@@ -213,18 +224,32 @@ export const html = (isLoggedIn: boolean) => `
                 <template x-if="!images[activeImgIndex].filename.match(/\\.(mp4|mov|webm)$/i)">
                     <img :src="'/api/file/' + images[activeImgIndex].id"
                          @click.stop="window.innerWidth >= 768 ? isZoomed = !isZoomed : null"
-                         :class="isZoomed ? 'cursor-zoom-out max-w-none max-h-none' : 'cursor-zoom-in max-w-full max-h-[85vh] object-contain rounded-lg'"
+                         :class="isZoomed ? 'cursor-zoom-out max-w-none max-h-none' : 'max-w-full max-h-[85vh] object-contain rounded-lg'"
                          class="transition-all duration-200 shadow-2xl m-auto" 
                          title="电脑端点击缩放，手机端双指捏合">
                 </template>
             </div>
         </template>
 
-        <div x-show="activeImgIndex !== null && !isZoomed" class="absolute bottom-8 md:bottom-12 left-1/2 transform -translate-x-1/2 flex bg-white/10 backdrop-blur-md px-6 py-3 rounded-full border border-white/20 shadow-xl items-center z-50 transition-opacity">
-            <a :href="images[activeImgIndex] ? '/api/file/' + images[activeImgIndex].id : '#'" target="_blank" class="text-white hover:text-indigo-300 text-sm md:text-base font-medium flex items-center gap-2 transition-colors">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+        <div x-show="activeImgIndex !== null && !isZoomed" class="absolute bottom-6 md:bottom-8 left-1/2 transform -translate-x-1/2 flex bg-white/10 backdrop-blur-md px-5 py-2.5 rounded-full border border-white/20 shadow-xl items-center z-50 transition-opacity">
+            <a :href="images[activeImgIndex] ? '/api/file/' + images[activeImgIndex].id : '#'" target="_blank" class="text-white hover:text-indigo-300 text-xs md:text-sm font-medium flex items-center gap-1.5 transition-colors">
+                <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                 查看原图
             </a>
+        </div>
+    </div>
+
+    <div x-show="isEditTagsOpen" x-cloak class="fixed inset-0 z-[300] flex items-center justify-center bg-black/40 backdrop-blur-sm transition-opacity p-4">
+        <div @click.away="isEditTagsOpen = false" class="bg-white/95 backdrop-blur-xl p-6 md:p-8 rounded-3xl shadow-2xl border border-white/50 w-full max-w-sm transform transition-all">
+            <h2 class="text-lg font-bold mb-4 text-gray-800">编辑分类/标签</h2>
+            <p class="text-xs text-gray-500 mb-4">用空格分隔多个标签</p>
+            <input type="text" x-model="editTagsText" @keyup.enter="saveEditedTags" class="w-full p-3 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 bg-white/50 text-sm mb-6">
+            <div class="flex gap-3">
+                <button @click="isEditTagsOpen = false" class="flex-1 bg-gray-200 text-gray-700 py-2.5 rounded-xl hover:bg-gray-300 transition font-medium text-sm">取消</button>
+                <button @click="saveEditedTags" :disabled="isSavingTags" class="flex-1 bg-gradient-to-r from-indigo-500 to-purple-500 text-white py-2.5 rounded-xl hover:shadow-lg transition font-medium text-sm disabled:opacity-50">
+                    <span x-text="isSavingTags ? '保存中...' : '确定保存'"></span>
+                </button>
+            </div>
         </div>
     </div>
 
@@ -320,10 +345,10 @@ export const html = (isLoggedIn: boolean) => `
                 page: 1, hasMore: true, isLoadingMore: false,
                 isLightboxOpen: false, activeImgIndex: null, isZoomed: false, 
                 
-                // 🌟 新增触摸与搜索参数
-                touchStartX: 0, touchStartY: 0,
-                searchDate: '', 
-                isSidebarOpen: false,
+                touchStartX: 0, touchStartY: 0, searchDate: '', isSidebarOpen: false,
+
+                // 🌟 新增：编辑标签的内部状态
+                isEditTagsOpen: false, editImgId: null, editTagsText: '', isSavingTags: false,
 
                 async init() { 
                     this.executeSearch(); 
@@ -331,8 +356,6 @@ export const html = (isLoggedIn: boolean) => `
                     this.tempName = this.galleryName;
                     document.title = this.galleryName;
                     this.$watch('galleryName', value => { document.title = value; });
-                    
-                    // 🌟 修复：无论是否登录，都去拉取公开的历史标签
                     this.fetchHistoryTags(); 
 
                     const observer = new IntersectionObserver((entries) => {
@@ -362,22 +385,52 @@ export const html = (isLoggedIn: boolean) => `
                     this.isZoomed = false;
                     this.activeImgIndex = (this.activeImgIndex + 1) % this.images.length;
                 },
-                // 🌟 苹果原生手势：滑动方向判定
+
+                // 🌟 痛点4修复：加入 visualViewport 拦截判定，完美让出系统双指缩放权限
                 handleSwipe(touchEndX, touchEndY) {
+                    // 如果原生正在放大，严禁触发我们的图片切换，保证拖拽流畅！
+                    if (window.visualViewport && window.visualViewport.scale > 1.05) return;
+
                     const diffX = this.touchStartX - touchEndX;
                     const diffY = this.touchStartY - touchEndY;
                     
                     if (Math.abs(diffX) > Math.abs(diffY)) {
-                        // 横向滑动切换照片
                         if (diffX > 40) this.nextImg();
                         else if (diffX < -40) this.prevImg();
                     } else {
-                        // 纵向滑动 (手往下滑动超过 60 像素，瞬间关闭照片)
                         if (diffY < -60) this.closeLightbox();
                     }
                 },
 
-                // 🌟 搜索携带 Date 参数
+                // 🌟 痛点1修复：编辑标签的核心逻辑
+                openEditTags(img) {
+                    this.editImgId = img.id;
+                    this.editTagsText = img.tags.join(' ');
+                    this.isEditTagsOpen = true;
+                },
+                async saveEditedTags() {
+                    if (!this.editImgId) return;
+                    this.isSavingTags = true;
+                    try {
+                        const res = await fetch(\`/api/file/\${this.editImgId}/tags\`, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ tags: this.editTagsText })
+                        });
+                        if (res.ok) {
+                            const data = await res.json();
+                            // 立即刷新前端的图片标签显示
+                            const targetImg = this.images.find(img => img.id === this.editImgId);
+                            if (targetImg) targetImg.tags = data.tags;
+                            this.fetchHistoryTags(); // 刷新左侧分类
+                            this.isEditTagsOpen = false;
+                        } else alert('修改失败');
+                    } catch(e) {
+                        alert('网络错误');
+                    }
+                    this.isSavingTags = false;
+                },
+
                 async executeSearch() {
                     this.page = 1;
                     this.hasMore = true;
